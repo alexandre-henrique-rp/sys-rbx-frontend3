@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const retorno = await response.json();
 
     const LogRegister = await LogEmpresa(retorno.data.id, "cadastro", Vendedor);
-    console.log('registro de log Post',LogRegister);
+    console.log('registro de log Post', LogRegister);
 
     // Data for the second API
     const DataRbx = {
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     const retornoPhp = await responsePhp.json();
 
 
-    return NextResponse.json({message: 'Cliente criado com sucesso', data: { strapi: retorno.data, php: retornoPhp}}, { status: 200 });
+    return NextResponse.json({ message: 'Cliente criado com sucesso', data: { strapi: retorno.data, php: retornoPhp } }, { status: 200 });
 
   } catch (error) {
     console.error(error)
