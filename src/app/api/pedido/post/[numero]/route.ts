@@ -28,9 +28,10 @@ export async function POST(request: Request, context: { params: any }) {
       // const PostLotes = await Lotes(DataPedido,ultimoLote)
       // post Bling
       const BlingPost = await PostBling(DataPedido)
+      // console.log("🚀 ~ file: route.ts:31 ~ POST ~ BlingPost:", BlingPost?.status)
       // const getPedido = await PostPedido(data);
       // res.status(200).send(getPedido);
-      return NextResponse.json(DataPedido)
+      return NextResponse.json(BlingPost)
     } else {
       return NextResponse.json({ message: "esse negocio nao esta Concluido" },{status: 500});
       // res.status(500).json({ message: "esse negocio nao esta Concluido" });
