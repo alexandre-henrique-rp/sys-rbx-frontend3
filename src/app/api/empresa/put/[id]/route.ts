@@ -1,6 +1,5 @@
+import { nextAuthOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
-import { nextAuthOptions } from "../../auth/[...nextauth]/route";
-import { LogEmpresa } from "../../lib/logEmpresa";
 import { NextResponse } from "next/server";
 
 
@@ -27,8 +26,8 @@ export async function PUT(request: Request, context: { params: any }) {
     });
     const retorno = await response.json();
 
-    const LogRegister = await LogEmpresa(retorno.data.id, "cadastro", Vendedor);
-    console.log('registro de log Put',LogRegister);
+    // const LogRegister = await LogEmpresa(retorno.data.id, "cadastro", Vendedor);
+    // console.log('registro de log Put',LogRegister);
 
     // Data for the second API
     const DataRbx = {

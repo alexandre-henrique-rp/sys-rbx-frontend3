@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { BTMPdf } from "../BTMPdf";
+// import { BTMPdf } from "../BTMPdf";
 import { BeatLoader } from "react-spinners";
 import Loading from "@/app/loading";
 import { useSession } from "next-auth/react";
@@ -96,7 +96,7 @@ export const CardList = (props: { id: string; onloading: any; desbilitar: any })
           duration: 5000,
           position: 'top-right',
         });
-        const requeste = await axios(url);
+        const requeste = await axios('/');
         const resp = requeste.data;
         setData(resp);
         setLoad(false)
@@ -308,7 +308,7 @@ export const CardList = (props: { id: string; onloading: any; desbilitar: any })
                           >
                             Editar Proposta
                           </Button>
-                          <BTMPdf nPedido={i.attributes.nPedido} empresa={i.attributes.empresa.data.attributes.nome} />
+                          {/* <BTMPdf nPedido={i.attributes.nPedido} empresa={i.attributes.empresa.data.attributes.nome} /> */}
                           <Button
                             isLoading={load && IdLoad == i.id}
                             spinner={<BeatLoader size={8} color="white" />}

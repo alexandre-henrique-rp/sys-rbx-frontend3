@@ -7,7 +7,7 @@ import axios from 'axios';
 import { capitalizeWords } from '@/function/mask/string';
 import { PessoasData } from '../pessoas/page';
 import FetchApi from '@/function/fetch/route';
-import { LogEmpresa } from '@/function/LogEmpresa';
+// import { LogEmpresa } from '@/function/LogEmpresa';
 import FetchRequest from '@/function/fetch/request/route';
 
 
@@ -74,7 +74,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
       }
       const PostSave = await FetchApi({ url: `/representantes`, method: 'POST', data: Data })
       if (PostSave.data) {
-        await LogEmpresa(props.Resp, 'Representante Create', Vendedor)
+        // await LogEmpresa(props.Resp, 'Representante Create', Vendedor)
         toast({
           title: 'Representante adicionado com sucesso',
           status: 'success',
@@ -99,7 +99,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
       const idPessoa = idExcluir;
       const excluir = await FetchApi({ url: `/representantes/${idPessoa}`, method: 'PUT', data: { data: { user: null } } });
       if (excluir.data) {
-        await LogEmpresa(props.Resp, 'DELETE Representante', Vendedor)
+        // await LogEmpresa(props.Resp, 'DELETE Representante', Vendedor)
         toast({
           title: 'Representante removido com sucesso',
           status: 'success',
@@ -151,7 +151,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
       }
       const PostSave = await FetchApi({ url: `/representantes`, method: 'POST', data: Data })
       if (PostSave.data) {
-        await LogEmpresa(props.Resp, 'Representante Update', Vendedor)
+        // await LogEmpresa(props.Resp, 'Representante Update', Vendedor)
         toast({
           title: 'Representante editado com sucesso',
           status: 'success',

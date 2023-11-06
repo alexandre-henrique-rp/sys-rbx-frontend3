@@ -1,9 +1,9 @@
+import { NextResponse } from "next/server";
 
-const GetEmpresasGeral = async (
-  data: {url: string, method: string, isRevalid?: number, isCache?: any}
-) => {
+export async function GET (request: Request)  {
   const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
-
+  const data: any = await request.json();
+  // data: {url: string, method: string, isRevalid?: number, isCache?: any}
   try {
     if(data.isCache){
       console.log(data.isCache)
@@ -16,7 +16,8 @@ const GetEmpresasGeral = async (
         cache: data.isCache // permite atualizar a cada reload
       });
       const response = await requeste.json();
-      return response
+      return NextResponse.json(response, { status: 200 });
+
     } else if(data.isRevalid){
       const request = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${data.url}`, {
         method: `${data.method}`,
@@ -29,7 +30,7 @@ const GetEmpresasGeral = async (
         }
       });
       const response = await request.json();
-      return response
+      return NextResponse.json(response, { status: 200 });
   
     }else {
       const requeste = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${data.url}`, {
@@ -40,12 +41,11 @@ const GetEmpresasGeral = async (
         },
       }) 
       const response = await requeste.json();
-      return response
+      return NextResponse.json(response, { status: 200 });
     }
   }
   catch (error: any) {
-    return error;
+    console.error(error)
+    throw error
   }
 }
-
-export default GetEmpresasGeral;

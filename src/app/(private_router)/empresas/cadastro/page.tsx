@@ -1,6 +1,6 @@
 import { Box } from "@chakra-ui/react";
 import React from "react";
-import { FormEmpresa } from "@/components/empresa/component/form";
+import { FormEmpresa } from "@/components/empresa/form/page";
 
 export default function Cadastro() {
 

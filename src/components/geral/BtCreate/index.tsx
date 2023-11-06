@@ -1,5 +1,4 @@
 'use client';
-import PostNegocios from "@/app/api/negocio/post/route";
 import FetchRequest from "@/function/fetch/request/route";
 import {
   Button,
@@ -123,7 +122,14 @@ export const BtCreate = (props: { user: any; onLoading: any }) => {
         etapa: 2,
       };
 
-      const PostBusiness = await PostNegocios(data)
+      const RequestBusiness = await fetch(`/api/negocio/post`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+      const PostBusiness = await RequestBusiness.json();
       console.log(PostBusiness.data.nBusiness);
         router.push(`/negocios/${PostBusiness.data.nBusiness}`)
 

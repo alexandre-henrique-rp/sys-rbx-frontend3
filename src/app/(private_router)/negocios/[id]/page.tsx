@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+'use client';
 import Loading from "@/app/loading";
 import { Box, Flex, useToast } from "@chakra-ui/react";
-import axios from "axios";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 
 interface InfosParams {
@@ -11,7 +10,7 @@ interface InfosParams {
   }
 }
 
-export async function GetRequest(id: string) {
+async function GetRequest(id: string) {
   const request = await fetch(`/api/negocio/get/${id}`);
   const response = await request.json();
   return response;
@@ -52,6 +51,8 @@ export default function CreateNegocio({ params }: InfosParams) {
   useEffect(() => {
     (async () => {
       try {
+        const request = await fetch(`/api/negocio/get/${id}`);
+  const response = await request.json();
         const res = await GetRequest(id);
         setData(res.data)
         setnBusiness(res.data.attributes.nBusiness);
@@ -81,7 +82,7 @@ export default function CreateNegocio({ params }: InfosParams) {
         setLoadingGeral(false);
       };
     })();
-  }, []);
+  }, [id, toast]);
 
   useEffect(() => {
     if (msg) {
@@ -105,7 +106,7 @@ export default function CreateNegocio({ params }: InfosParams) {
         };
       })();
     }
-  }, [msg]);
+  }, [id, msg, toast]);
 
   useEffect(() => {
     if (msg2) {
@@ -132,7 +133,7 @@ export default function CreateNegocio({ params }: InfosParams) {
         };
       })();
     }
-  }, [msg2]);
+  }, [id, msg2, toast]);
 
   function getMsg(menssage: React.SetStateAction<any>) {
     setMsg(menssage);
@@ -185,7 +186,7 @@ export default function CreateNegocio({ params }: InfosParams) {
   return (
     <>
       <Flex w="100%" h="100vh" flexDirection={'column'} justifyContent={'space-between'} >
-        <Box bg={'gray.800'} w="full" p={5} color={'white'}>
+        {/* <Box bg={'gray.800'} w="full" p={5} color={'white'}>
           <NegocioHeader
             title={Nome}
             nBusiness={nBusiness}
@@ -208,7 +209,7 @@ export default function CreateNegocio({ params }: InfosParams) {
         </Box>
         <Box bg={'gray.800'} w="full">
           <NegocioFooter data={ChatHistory} onGetValue={getMsg} />
-        </Box>
+        </Box> */}
       </Flex>
     </>
   );

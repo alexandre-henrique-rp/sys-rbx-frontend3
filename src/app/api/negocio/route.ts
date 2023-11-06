@@ -1,4 +1,5 @@
 import FetchRequest from "@/function/fetch/request/route";
+import { conclucaoResponseRequest } from "./lib/conclucaoResponseRequest";
 
 
 export async function GET(request: Request) {
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
     const DataFim: any = searchParams.get("DataFim");
     const Vendedor: any = searchParams.get("Vendedor");
 
-    const conclucaoResponse = await FetchRequest.get(
+    const conclucaoResponse = await conclucaoResponseRequest(
       `/businesses?filters[vendedor][username][$eq]=${Vendedor}&filters[status][$eq]=true&filters[date_conclucao][$between]=${DataIncicio}&filters[date_conclucao][$between]=${DataFim}&sort[0]=id%3Adesc&fields[0]=deadline&fields[1]=createdAt&fields[2]=DataRetorno&fields[3]=date_conclucao&fields[4]=nBusiness&fields[5]=andamento&fields[6]=Budget&fields[7]=etapa&populate[empresa][fields][0]=nome&populate[vendedor][fields][0]=username&populate[pedidos][fields][0]=totalGeral`
       );
 

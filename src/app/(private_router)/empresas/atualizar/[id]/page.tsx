@@ -11,11 +11,6 @@ interface EmpresaIdProps {
   }
 }
 
-export async function GetEmpresa(id: string) {
-  const response = await fetch(`/api/empresa/atualizar/get?id=${id}`);
-  const retorno = await response.json();
-  return retorno;
-}
 
 export default function EmpresaId({ params }: EmpresaIdProps) {
   const { data: session } = useSession();
@@ -25,7 +20,8 @@ export default function EmpresaId({ params }: EmpresaIdProps) {
 
   useEffect(() => {
     (async () => {
-      const empresa = await GetEmpresa(ID);
+      const response = await fetch(`/api/empresa/atualizar/get?id=${ID}`);
+      const empresa = await response.json();
       setDataEmp(empresa)
       if (empresa.attributes.user.data?.attributes.username !== session?.user.name && session?.user.pemission !== 'Adm') {
         toast({
@@ -44,7 +40,7 @@ export default function EmpresaId({ params }: EmpresaIdProps) {
   return (
     <>
       <Box w={'100%'} h={'100vh'} bg="gray.800">
-        <FormEmpresa envio='UPDATE' data={DataEmp} id={ID}/>
+        <FormEmpresa envio='UPDATE' data={DataEmp} id={ID} />
       </Box>
     </>
   );

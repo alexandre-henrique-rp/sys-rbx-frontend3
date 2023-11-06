@@ -15,17 +15,6 @@ import Link from "next/link";
 import { redirect, useRouter, usePathname } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
-export async function GetVendedor(vendedor: string) {
-  const request = await fetch(`/api/empresa/adm/user?user=${vendedor}`);
-  const response = await request.json();
-  return response;
-}
-
-export async function GetSemVendedor() {
-  const request = await fetch(`/api/empresa/adm/livre`);
-  const response = await request.json();
-  return response;
-}
 
 export default function EmpresasAdm() {
   const dataAtual = startOfDay(new Date());
@@ -47,10 +36,12 @@ export default function EmpresasAdm() {
           setUser(session?.user.name);
         }
         const vendedor: any = session?.user.name;;
-        const retorno = await GetSemVendedor();
-        setRetornoSemVendedor(retorno);
-        const retornoVendedor = await GetVendedor(vendedor);
-        setRetornoVendedor(retornoVendedor);
+        const retorno = await fetch(`/api/empresa/adm/livre`);
+        const responseSemVendedor = await retorno.json();
+        setRetornoSemVendedor(responseSemVendedor);
+        const retornoVendedor = await fetch(`/api/empresa/adm/user?user=${vendedor}`);
+        const response = await retornoVendedor.json();
+        setRetornoVendedor(response);
       } catch (error) {
         console.log(error);
         toast({
@@ -65,24 +56,25 @@ export default function EmpresasAdm() {
     })();
   }, [User, session?.user.name, toast])
 
-  
-    async function handleUserChange(user: string) {
-      try {
-        setUser(user);
-        const retornoVendedor = await GetVendedor(user);
-        setRetornoVendedor(retornoVendedor);
-      } catch (error) {
-        console.log(error); 
-        toast({
-          title: 'Opss.',
-          description: `Ocorreu um erro inesperado: \n${JSON.stringify(error, null, 2)}`,
-          status: 'warning',
-          duration: 9000,
-          isClosable: true,
-        })      
-      }
+
+  async function handleUserChange(user: any) {
+    try {
+      setUser(user);
+      const retornoVendedor = await fetch(`/api/empresa/adm/user?user=${user}`);
+      const response = await retornoVendedor.json();
+      setRetornoVendedor(response);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: 'Opss.',
+        description: `Ocorreu um erro inesperado: \n${JSON.stringify(error, null, 2)}`,
+        status: 'warning',
+        duration: 9000,
+        isClosable: true,
+      })
     }
-    
+  }
+
   const ListaVendedor = !!RetornoVendedor && processarVendedorInteracoes(dataAtual, RetornoVendedor, session);
   const ListaSemVendedor = !!RetornoSemVendedor && processarSemVendedorInteracoes(dataAtual, RetornoSemVendedor, session);
 
@@ -92,7 +84,7 @@ export default function EmpresasAdm() {
         <Heading size={'lg'}>Empresas</Heading>
         <Flex w={'100%'} py={'1rem'} justifyContent={'space-between'} flexDir={'row'} alignItems={'self-end'} px={6} gap={6} borderBottom={'1px'} borderColor={'white'} mb={'1rem'}>
           <Box>
-          <SelectUser onValue={handleUserChange} user={User} />
+            <SelectUser onValue={handleUserChange} user={User} />
           </Box>
           <Box>
             <FiltroEmpresaAdm User={User} />

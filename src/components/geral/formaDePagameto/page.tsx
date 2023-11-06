@@ -1,5 +1,5 @@
 'use client';
-import { LogEmpresa } from "@/function/LogEmpresa";
+// import { LogEmpresa } from "@/function/LogEmpresa";
 import FetchRequest from "@/function/fetch/request/route";
 import { Box, Button, ButtonGroup, Flex, FormControl, FormLabel, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverTrigger, Select, useDisclosure, useToast } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
@@ -63,7 +63,7 @@ export const FormaPg = (props: { id: any; retorno: any; envio: any }) => {
       const retorno1 = response.data
       const retorno2 = response2.data
       setData([...retorno1, ...retorno2])
-      await LogEmpresa(props.id, 'Empresa create', Vendedor)
+      // await LogEmpresa(props.id, 'Empresa create', Vendedor)
       setValor('')
       setTitulo('')
       onClose()

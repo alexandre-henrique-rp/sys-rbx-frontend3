@@ -1,6 +1,6 @@
 import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-import { CardList } from "../../components/Proposta/listaItens";
+import { CardList } from "@/components/propostas/cardLista/page";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 
 interface InfosParams {

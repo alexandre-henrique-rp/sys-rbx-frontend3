@@ -1,6 +1,6 @@
 'use client'
 
-import { LogEmpresa } from "@/function/LogEmpresa";
+// import { LogEmpresa } from "@/function/LogEmpresa";
 import FetchApi from "@/function/fetch/route";
 import { primeiroNome } from "@/function/mask/primeiroNome";
 import { Box, Button, Flex, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Text, useDisclosure, useToast } from "@chakra-ui/react";
@@ -48,7 +48,7 @@ export const PessoasData = (props: { data: any; respData: any; respAtualizar: an
         isClosable: true,
         position: 'top-right',
       })
-      await LogEmpresa(props.empresaId, 'representante Remove', Vendedor)
+      // await LogEmpresa(props.empresaId, 'representante Remove', Vendedor)
       console.log(resposta)
       props.reload()
       onClose()

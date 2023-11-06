@@ -1,9 +1,11 @@
 import FetchRequest from "@/function/fetch/request/route";
-import { Historico } from "../../lib/historico/route";
-import { RegCompra } from "../../lib/RegistroDeCpmpra/route";
+import { Historico } from "../../lib/historico";
+import { RegCompra } from "../../lib/RegistroDeCpmpra";
+import { NextResponse } from "next/server";
 
 
-const PostNegocios = async (data: any) => {
+export async function POST(request: Request) {
+  const Dados: any = await request.json();
   try {
     const consulta = await FetchRequest.get(
       "/businesses?fields[0]=id&fields[1]=nBusiness&sort=id%3Adesc"
@@ -34,25 +36,25 @@ const PostNegocios = async (data: any) => {
       ? Number(anoVigente + "000" + 1)
       : newBusinesses;
 
-    const getVendedor = await FetchRequest.get("/users/" + data.vendedor);
+    const getVendedor = await FetchRequest.get("/users/" + Dados.vendedor);
     const respVendedor = getVendedor.data.username;
 
-    const getCliente = await FetchRequest.get("/empresas/" + data.empresa);
+    const getCliente = await FetchRequest.get("/empresas/" + Dados.empresa);
     const respCliente = getCliente.data.attributes.nome;
 
     const dataAtualizado = {
       data: {
         status: true,
         statusAnd: "Ativo",
-        DataRetorno: data.DataRetorno,
+        DataRetorno: Dados.DataRetorno,
         nBusiness: nBusiness.toString(),
-        Budget: data.Budget,
-        Approach: data.Approach,
-        history: [data.history],
-        incidentRecord: data.incidentRecord,
-        empresa: Number(data.empresa),
-        vendedor: data.vendedor,
-        vendedor_name: data.vendedor_name,
+        Budget: Dados.Budget,
+        Approach: Dados.Approach,
+        history: [Dados.history],
+        incidentRecord: Dados.incidentRecord,
+        empresa: Number(Dados.empresa),
+        vendedor: Dados.vendedor,
+        vendedor_name: Dados.vendedor_name,
         andamento: 3,
         etapa: 2,
       },
@@ -63,33 +65,33 @@ const PostNegocios = async (data: any) => {
     console.log(response.data);
     const isoDateTime = new Date().toISOString();
     const VisibliDateTime = new Date().toISOString();
-    await RegCompra(Number(data.empresa), data.Budget)
+    await RegCompra(Number(Dados.empresa), Dados.Budget)
 
     const txt = {
       date: isoDateTime,
-      vendedor: data.vendedor,
+      vendedor: Dados.vendedor,
       msg: `Business numero: ${nBusiness}, foi criado pelo vendedor ${respVendedor} para o cliente ${respCliente} no dia ${VisibliDateTime}`,
     };
-    const url = `empresas/${data.empresa}`;
+    const url = `empresas/${Dados.empresa}`;
     const Register = await Historico(txt, url);
 
-    return {
+    return NextResponse.json( {
       status: 200,
       nBusiness: response.data.data.id,
       message: `Business numero: ${nBusiness}, foi criado pelo vendedor ${respVendedor} para o cliente ${respCliente} no dia ${VisibliDateTime}`,
       historico: Register,
-    };
+    }, { status: 200 });
   } catch (error: any) {
     console.log(error.response);
     const isoDateTime = new Date().toISOString();
 
     const txt = {
       date: isoDateTime,
-      vendedor: data.vendedor,
+      vendedor: Dados.vendedor,
       msg: "Proposta não foi criada devido a erro",
       error: error.response,
     };
-    const url = `empresas/${data.empresa}`;
+    const url = `empresas/${Dados.empresa}`;
     const Register = await Historico(txt, url);
 
     const ErroJson ={
@@ -99,8 +101,6 @@ const PostNegocios = async (data: any) => {
     };
     console.log("🚀 ~ file: route.ts:98 ~ PostNegocios ~ ErroJson:", ErroJson)
 
-    return error;
+    throw error;
   }
 }
-
-export default PostNegocios;
