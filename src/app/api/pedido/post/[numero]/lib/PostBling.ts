@@ -1,5 +1,3 @@
-import puppeteer from 'puppeteer';
-
 
 export const PostBling = async (Dados: any) => {
   try {
@@ -102,49 +100,8 @@ export const PostBling = async (Dados: any) => {
     //     'Cookie': 'PHPSESSID=pks7j1krm4n7taorgftsc1oi62'
     //   },
     // })
-    const response: any = await fetch('https://www.bling.com.br/Api/v3/oauth/authorize?response_type=code&client_id=050b7facd85b3eab7df48c932fa41c3cf6033eb9&state=131c984504384bd1b5418de99b0f96cf&scopes=98308+98309+98310+98313+98314+98565+507943+1563512+5990556+106168710+182224097+199272829+200802821+318257553+318257556+318257565+318257568+318257570+318257583+363921589+363921590+363921591+363921592+363953167+363953556+363953706+791588404+1649295804+1869535257+5862218180+6239411327+13645012976+13645012997+13645012998', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'text/html;charset=utf-8',
-      },
-      redirect: 'follow'
-    })
-    let urlTratamento;
-    if (response.ok) {
-      const retorno = await response.url
-      console.log(retorno)
 
-
-      if (retorno) {
-        (async () => {
-          
-          const browser = await puppeteer.launch({headless: false, defaultViewport: null, devtools: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-          const page = await browser.newPage();
-          
-          await page.setViewport({
-            width: 600,
-            height: 600,
-            deviceScaleFactor: 1,
-          });
-          await page.goto(retorno);
-    
-          // // Espere até que o login seja concluído e a URL de retorno seja atingida
-          await page.waitForNavigation({ waitUntil: 'networkidle0' });
-    
-          // // Pegue a URL atual após o login
-          const currentUrl = page.url();
-          console.log('URL atual após o login:', currentUrl);
-          urlTratamento = currentUrl
-    
-          // // Realize ações adicionais após o login
-    
-          await browser.close();
-        })()
-      }
-    }
-
-
-    return urlTratamento
+    return TokenBling
   } catch (error) {
     console.error(error)
   }
