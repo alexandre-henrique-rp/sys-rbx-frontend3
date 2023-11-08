@@ -12,9 +12,9 @@ export async function GET(request: Request) {
       },
     });
     const retorno = await response.json();
-    const userRetorno: any = retorno.data
+    const userRetorno: any = retorno
 
-    return NextResponse.json({userRetorno}, { status: 200 });
+    return NextResponse.json(userRetorno, { status: 200 });
   } catch (error) {
     console.log(error);
     throw error
