@@ -1,8 +1,6 @@
 'use client'
 
-import GetUser from '@/app/api/user/route';
 import { Box, Button, Flex, FormLabel, Heading, Select } from '@chakra-ui/react';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
@@ -24,7 +22,13 @@ export const SelectUser = (props: {
     setUser(usuario)
     const fetchData = async () => {
       try {
-        const response = await GetUser();
+        const request = await fetch('/api/user/get', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const response = await request.json();
         setUsers(response);
       } catch (error) {
         console.log(error);

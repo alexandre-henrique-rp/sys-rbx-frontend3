@@ -1,5 +1,6 @@
 import FetchRequest from "@/function/fetch/request/route";
-import { conclucaoResponseRequest } from "./lib/conclucaoResponseRequest";
+import { DataRequeste } from "./lib/dataRequest";
+import { NextResponse } from "next/server";
 
 
 export async function GET(request: Request) {
@@ -10,19 +11,19 @@ export async function GET(request: Request) {
     const DataFim: any = searchParams.get("DataFim");
     const Vendedor: any = searchParams.get("Vendedor");
 
-    const conclucaoResponse = await conclucaoResponseRequest(
+    const conclucaoResponse = await DataRequeste(
       `/businesses?filters[vendedor][username][$eq]=${Vendedor}&filters[status][$eq]=true&filters[date_conclucao][$between]=${DataIncicio}&filters[date_conclucao][$between]=${DataFim}&sort[0]=id%3Adesc&fields[0]=deadline&fields[1]=createdAt&fields[2]=DataRetorno&fields[3]=date_conclucao&fields[4]=nBusiness&fields[5]=andamento&fields[6]=Budget&fields[7]=etapa&populate[empresa][fields][0]=nome&populate[vendedor][fields][0]=username&populate[pedidos][fields][0]=totalGeral`
       );
 
-    const dataRetornoResponse = await FetchRequest.get(
+    const dataRetornoResponse = await DataRequeste(
       `/businesses?filters[vendedor][username][$eq]=${Vendedor}&filters[status][$eq]=true&filters[DataRetorno][$between]=${DataIncicio}&filters[DataRetorno][$between]=${DataFim}&sort[0]=id%3Adesc&fields[0]=deadline&fields[1]=createdAt&fields[2]=DataRetorno&fields[3]=date_conclucao&fields[4]=nBusiness&fields[5]=andamento&fields[6]=Budget&fields[7]=etapa&populate[empresa][fields][0]=nome&populate[vendedor][fields][0]=username&populate[pedidos][fields][0]=totalGeral`
       );
 
-    const deadlineResponse = await FetchRequest.get(
+    const deadlineResponse = await DataRequeste(
       `/businesses?filters[vendedor][username][$eq]=${Vendedor}&filters[status][$eq]=true&filters[deadline][$between]=${DataIncicio}&filters[deadline][$between]=${DataFim}&sort[0]=id%3Adesc&fields[0]=deadline&fields[1]=createdAt&fields[2]=DataRetorno&fields[3]=date_conclucao&fields[4]=nBusiness&fields[5]=andamento&fields[6]=Budget&fields[7]=etapa&populate[empresa][fields][0]=nome&populate[vendedor][fields][0]=username&populate[pedidos][fields][0]=totalGeral`
       );
 
-    const createdAtResponse = await FetchRequest.get(
+    const createdAtResponse = await DataRequeste(
       `/businesses?filters[vendedor][username][$eq]=${Vendedor}&filters[status][$eq]=true&filters[createdAt][$between]=${DataIncicio}&filters[createdAt][$between]=${DataFim}&sort[0]=id%3Adesc&fields[0]=deadline&fields[1]=createdAt&fields[2]=DataRetorno&fields[3]=date_conclucao&fields[4]=nBusiness&fields[5]=andamento&fields[6]=Budget&fields[7]=etapa&populate[empresa][fields][0]=nome&populate[vendedor][fields][0]=username&populate[pedidos][fields][0]=totalGeral`
       );
 
@@ -53,7 +54,7 @@ export async function GET(request: Request) {
       }
     });
  
-    return sortedData;
+    return NextResponse.json(sortedData, { status: 200 });
   } catch (error: any) {
     throw error;
   }
