@@ -9,6 +9,7 @@ import {
   ListIcon,
   ListItem,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { useSession } from 'next-auth/react';
 import NextLink from 'next/link';
@@ -16,14 +17,19 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import NavMenuItems from '../../data/nav-menu-items';
 import ProfilePopover from '../profile-popover';
- 
+
 
 
 function Navbar() {
   const router = useRouter();
   const { data: session } = useSession();
   const [Dados, setDados] = useState<any>([]);
+  const [externalWindow, setExternalWindow] = useState<any | null>(null);
+  const [Fornecedor, setFornecedor] = useState<string | null>(null);
+  const [FornecedorId, setFornecedorId] = useState<any | null>(null);
+  const [FornecedorSecret, setFornecedorSecret] = useState<any | null>(null);
   const pathname = usePathname();
+  const toast = useToast();
 
   const nameRota = pathname.split('/');
   const RotaAtual = `/${nameRota[1]}`;
@@ -38,6 +44,62 @@ function Navbar() {
       setDados(NavMenuItems);
     }
   }, [router, session?.user.pemission, session?.user.primeiro_acesso]);
+
+  useEffect(() => {
+    if (externalWindow) {
+      const interval = setInterval(() => {
+        if (externalWindow.closed) {
+          clearInterval(interval);
+        } else {
+          const newURL = externalWindow.location.href;
+          externalWindow.close();
+          const match = newURL.match(/code=([^&]+)/);
+
+          if (match) {
+            const code = match[1];
+            console.log('Valor do código:', code);
+
+            const operacao = async () => {
+              try {
+                const response = await fetch(`/api/blingAuth/Authorization`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/JSON',
+                  },
+                  body: JSON.stringify({
+                    id: FornecedorId,
+                    secret: FornecedorSecret,
+                    code: code,
+                    fornecedor: Fornecedor
+                  }),
+                });
+                if(!response.ok) {
+                  throw new Error('Ocorreu um erro durante a solicitação POST.');
+                }
+                const retorno = await response.json();
+                console.log("🚀 ~ file: index.tsx:78 ~ operacao ~ retorno:", retorno)
+                toast({
+                  title: 'Sucesso',
+                  description: 'Autenticado com sucesso, seu token expira em 6 horas',
+                  status: 'success',
+                  duration: 9000,
+                  isClosable: true
+                })
+                
+              } catch (error) {
+                console.log(error);
+                throw error;
+              }
+            };
+
+            operacao();
+          }
+        }
+      }, 1000);
+    }
+  }, [Fornecedor, FornecedorId, FornecedorSecret, externalWindow, toast]);
+
+
 
   return (
     <Flex
@@ -73,15 +135,18 @@ function Navbar() {
                       },
                       cache: 'no-store'
                     });
-                    const retorno = await response.json();
-                    console.log("🚀 ~ file: index.tsx:77 ~ HandleLogin ~ response:", response)
-                    console.log("🚀 ~ file: index.tsx:77 ~ HandleLogin ~ retorno:", retorno)
-                
+                    if (response.ok) {
+                      const retorno = await response.json();
+                      const externalWindow = window.open(retorno.url, '_blank', 'width=600, height=600, location=no');
+                      setExternalWindow(externalWindow);
+                      setFornecedor(fornecedor);
+                      setFornecedorId(retorno.id);
+                      setFornecedorSecret(retorno.secret);
+                    }
                   } catch (error) {
                     console.error(error);
                   }
                 };
-                
 
 
                 return (
