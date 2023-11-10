@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { savetoken } from "./lib/savetoken";
 
 
 
@@ -25,27 +26,26 @@ export async function POST(request: Request) {
     });
 
     const responseData = await response.json();
-    console.log("🚀 ~ file: index.tsx:86 ~ operacao ~ response:", responseData);
+    console.log("🚀 ~ file: route.ts:28 ~ POST ~ responseData:", responseData)
     if (responseData.access_token) {
-      const token: any = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
-      const url: any = process.env.NEXT_PUBLIC_STRAPI_API_URL;
-      const request = await fetch(`${url}/${data.fornecedor.toLowerCase()}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const date = new Date();
+      date.setDate(date.getDate() + 29);
+      const DataJson = {
+        data: {
           token: responseData.access_token,
-          periodo: responseData.expires_in,
-          update: new Date().toISOString()
-        })
-      });
-      if (!request.ok) {
-        throw new Error('Ocorreu um erro durante a solicitação POST.');
+          periodo: responseData.expires_in.toString(),
+          update: new Date().toISOString(),
+          token_de_reutilizacao: responseData.refresh_token,
+          prazo_final: date.toISOString(),
+          alert10: false,
+          alert5: false,
+          alert1: false,
+        }
       }
-      const retorno = await request.json();
-      console.log("🚀 ~ file: route.ts:48 ~ POST ~ retorno:", retorno)
+      const subRota = data.fornecedor.toLowerCase()
+      const salve = await savetoken(DataJson, subRota)
+
+      console.log("🚀 ~ file: route.ts:48 ~ POST ~ retorno:", salve)
       return NextResponse.json(responseData.access_token)
     } else {
       throw new Error('Ocorreu um erro durante a solicitação POST.');

@@ -51,7 +51,7 @@ function Navbar() {
         if (externalWindow.closed) {
           clearInterval(interval);
         } else {
-          const newURL = externalWindow.location.href;
+          const newURL: any = externalWindow.location.href;
           externalWindow.close();
           const match = newURL.match(/code=([^&]+)/);
 
