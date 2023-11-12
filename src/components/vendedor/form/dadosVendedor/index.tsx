@@ -1,10 +1,27 @@
 "use client";
-import FetchRequest from "@/function/fetch/request/route";
 import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, Select, useToast } from "@chakra-ui/react"
 import { ReactNode, useEffect, useState } from "react"
 
 interface DadosVendedorProps {
   id: ReactNode
+}
+
+async function GetRequest(id: string) {
+  const request = await fetch(`/api/user/get/${id}`)
+  const response = await request.json();
+  return response;
+}
+
+async function PutRequest(id: string, dados: any) {
+  const request = await fetch(`/api/user/put/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dados),
+  })
+  const response = await request.json();
+  return response;
 }
 
 
@@ -17,20 +34,18 @@ export const DadosVendedor = ({ id }: DadosVendedorProps) => {
   const [Status, setStatus] = useState('');
   const toast = useToast();
   const [Bloq, setBloq] = useState(false);
-  const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
 
   useEffect(() => {
     (async () => {
       try {
-        const response = await FetchRequest.get(` /users/${IDVendedor}`)
+        const response = await GetRequest(`${IDVendedor}`)
         setNome(response.username);
         setEmail(response.email);
         setTelefone(response.tel);
         setRecorde(response.record);
         setStatus(response.confirmed);
       } catch (error: any) {
-        console.log(error.response.data ? JSON.stringify(error.response.data) : JSON.stringify(error));
-        console.log(error.response.data.message);
+        console.log(error);
       }
     })()
   }, [IDVendedor]);
@@ -50,23 +65,24 @@ export const DadosVendedor = ({ id }: DadosVendedorProps) => {
         confirmed: Status == 'true' ? true : false
       };
 
-      const request = await FetchRequest.put(`/users/${IDVendedor}`, Data);
+      const request = await PutRequest(`${IDVendedor}`, Data);
 
-      const resposta = request.data;
-      console.log(resposta);
-      toast({
-        title: 'Salvo com sucesso',
-        status: 'success',
-        duration: 3000,
-        isClosable: true
-      });
-      setBloq(false);
+      const resposta = request;
+      if(!!resposta){
+        console.log(resposta);
+        toast({
+          title: 'Salvo com sucesso',
+          status: 'success',
+          duration: 3000,
+          isClosable: true
+        });
+        setBloq(false);
+      }
     } catch (error: any) {
-      console.log(error.response.data ? JSON.stringify(error.response.data) : JSON.stringify(error));
-      console.log(error.response.data.message);
+      console.log(JSON.stringify(error));
       toast({
         title: 'Erro',
-        description: `Erro ao cadastrar usuario, ${error.response.data.message}`,
+        description: `Erro ao cadastrar usuario, ${JSON.stringify(error, null, 2)}`,
         status: 'error',
         duration: 9000,
         isClosable: true
@@ -74,8 +90,6 @@ export const DadosVendedor = ({ id }: DadosVendedorProps) => {
       setBloq(false);
     }
   }
-
-
 
   return (
     <>

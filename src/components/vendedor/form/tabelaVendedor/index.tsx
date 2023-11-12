@@ -1,27 +1,32 @@
 "use client";
-import DeleteVendedorConf from "@/app/api/vendedor/ConfgDele";
-import GetVendedorConf from "@/app/api/vendedor/getConfg";
-import FetchRequest from "@/function/fetch/request/route";
-import { BaseURL } from "@/function/request";
 import { Box, Flex, Heading, IconButton, Table, TableContainer, Tbody, Th, Thead, Tr, useToast } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { FaRegTrashCan } from "react-icons/fa6";
 
+interface TabelaVendasVendedorProps {
+  id: ReactNode
+  update: ReactNode
+}
 
-export const TabelaVendasVendedor = (props: { id: any , update: any}) => {
-  const IDVendedor = props.id
-  const [Data, setData] = useState<any|null>([]);
+async function GetRequest(id: any) {
+  const request = await fetch(`/api/vendedor/getConfg/${id}`);
+  const response = await request.json();
+  return response;
+}
+
+export const TabelaVendasVendedor = ({ id, update }: TabelaVendasVendedorProps) => {
+  const IDVendedor = id
+  const PageUpdate = update
+  const [Data, setData] = useState<any | null>([]);
   const [Bloq, setBloq] = useState(true);
   const toast = useToast();
 
   useEffect(() => {
-    if(props.update === true){
+    if (PageUpdate === true) {
       (async () => {
         try {
-          const request = await FetchRequest.get(`/config-vendas?populate=*&filters[user][id][$eq]=${IDVendedor}`);
-          const retorno = request.data.data;
-          console.log("🚀 ~ file: index.tsx:22 ~ retorno:", retorno)
-          setData(retorno)
+          const request = await GetRequest(IDVendedor);
+          setData(request)
           setBloq(false)
         } catch (error) {
           console.log(error);
@@ -29,47 +34,51 @@ export const TabelaVendasVendedor = (props: { id: any , update: any}) => {
         }
       })();
     }
-    if(IDVendedor && setBloq){
-      (async () => {
-        try {
-          const request = await FetchRequest.get(`/config-vendas?populate=*&filters[user][id][$eq]=${IDVendedor}`);
-          const retorno = request.data.data;
-          setBloq(false)
-          setData(retorno)
-        } catch (error) {
-          console.log(error);
-          setBloq(false)
-        }
-      })();
-    }
-  }, [IDVendedor, props.update]);
-   
-  const DELETE = async(id: any) => {
-    try {
-     const Deletar = await FetchRequest.delete(`/config-vendas/${id}`);
-     const data = Deletar.data.data;
-     toast({
-       title: 'Sucesso',
-       description: 'Configuração deletada com sucesso',
-       status: 'success',
-       duration: 9000,
-       isClosable: true
-     })
-     console.log(data);
-     (async () => {
+    (async () => {
       try {
-        const request = await FetchRequest.get(`/config-vendas?populate=*&filters[user][id][$eq]=${IDVendedor}`);
-        const retorno = request.data.data;
-        setData(retorno)
+        const request = await GetRequest(IDVendedor);
+        setData(request)
+        setBloq(false)
       } catch (error) {
         console.log(error);
+        setBloq(false)
       }
     })();
+
+  }, [Bloq, IDVendedor, PageUpdate]);
+
+  const DELETE = async (id: any) => {
+    try {
+      const Deletar = await fetch(`/api/vendedor/ConfgDele/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (Deletar.ok) {
+        const data = await Deletar.json();
+        toast({
+          title: 'Sucesso',
+          description: 'Configuração deletada com sucesso',
+          status: 'success',
+          duration: 9000,
+          isClosable: true
+        })
+        console.log(data);
+        (async () => {
+          try {
+            const request = await GetRequest(IDVendedor);
+            setData(request)           
+          } catch (error) {
+            console.log(error);
+          }
+        })();
+      }
     } catch (error: any) {
       console.log(error);
       toast({
         title: 'Erro',
-        description: 'Erro ao deletar configuração, erro: ' + !!error.response.data? error.response.data : error,
+        description: 'Erro ao deletar configuração, erro: ' + error,
         status: 'error',
         duration: 9000,
         isClosable: true
@@ -98,7 +107,7 @@ export const TabelaVendasVendedor = (props: { id: any , update: any}) => {
           <Th color={'white'}>{item.attributes.comissao_venda}</Th>
           <Th color={'white'}>{item.attributes.entradas_contas}</Th>
           <Th color={'white'}>{item.attributes.comissao_conta}</Th>
-          <Th><IconButton colorScheme="red" icon={<FaRegTrashCan />}aria-label="Excluir" onClick={() => DELETE(item.id)} /></Th>
+          <Th><IconButton colorScheme="red" icon={<FaRegTrashCan />} aria-label="Excluir" onClick={() => DELETE(item.id)} /></Th>
         </Tr>
       </>
     )

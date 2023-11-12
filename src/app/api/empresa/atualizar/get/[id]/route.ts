@@ -18,8 +18,8 @@ export async function GET(request: Request, context: { params: any }) {
     });
     const retorno = await response.json();
     return NextResponse.json(retorno.data, { status: 200 });
-  } catch (error) {
-    console.error(error)
-    throw error
+  } catch (error: any) {
+    console.log(!error.response.data.erro ? error : error.response.data.erro);
+    throw !error.response.data ? error : error.response.data.erro;
   }
 }

@@ -1,6 +1,6 @@
 import { Feriado } from "@/app/api/painel/request/feriado";
 
-export const getAllDaysOfMonth = async (month?: number, year?: number, token?: any) => {
+export const getAllDaysOfMonth = async (month?: number, year?: number) => {
   const currentYear = year || new Date().getFullYear();
   const currentMonth = month ? month - 1 : new Date().getMonth();
   const firstDay = new Date(currentYear, currentMonth, 1);
@@ -21,7 +21,7 @@ export const getAllDaysOfMonth = async (month?: number, year?: number, token?: a
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  const feriados = await Feriado(token);
+  const feriados = await Feriado();
 
   const diasUteis = diasDaSemana.filter((day) => {
     const isFeriado = feriados.includes(day.date);

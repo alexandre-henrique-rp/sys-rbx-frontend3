@@ -1,19 +1,22 @@
-import axios from "axios";
 
-
-export const DataRetorno = async (DataIncicio: string, DataFim: string, Vendedor: any, token: any) => {
+export const DataRetorno = async (DataIncicio: string, DataFim: string, Vendedor: any) => {
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/businesses?filters[DataRetorno][$between]=${DataIncicio}&filters[DataRetorno][$between]=${DataFim}&filters[vendedor][username][$eq]=${Vendedor}&filters[status][$eq]=true&filters[andamento][$eq]=3&sort[0]=id%3Adesc&fields[0]=etapa&fields[1]=andamento&fields[2]=Budget&fields[3]=DataRetorno&populate[vendedor][fields][0]=username`,
+    const BaseUrl: any = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+      const response = await fetch(`${BaseUrl}/businesses?filters[DataRetorno][$between]=${DataIncicio}&filters[DataRetorno][$between]=${DataFim}&filters[vendedor][username][$eq]=${Vendedor}&filters[status][$eq]=true&filters[andamento][$eq]=3&sort[0]=id%3Adesc&fields[0]=etapa&fields[1]=andamento&fields[2]=Budget&fields[3]=DataRetorno&populate[vendedor][fields][0]=username`,
       {
+        method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_API_TOKEN}`,
           "Content-Type": "application/json",
         },
+        cache: "no-store",
       }
     );
-    return response.data.data;
+    if (response.ok) {
+      const data = await response.json();
+      return data.data;
+    }
   } catch (error: any) {
-    return error;
+    throw !error.response.data ? error : error.response.data;
   }
 }

@@ -12,7 +12,7 @@ interface VendedorIdProps {
   }
 }
 
-export default function VendedorId({ params }: { params: { id: string } }) {
+export default function VendedorId({ params }: VendedorIdProps) {
  const id: any = params.id
  const [Reset, setReset] = useState(false)
 
@@ -30,7 +30,7 @@ export default function VendedorId({ params }: { params: { id: string } }) {
         <Divider />
 
         {/* configuração de vendas */}
-        <ConfigVendedor id={id} update={handlerUpdate} />
+        <ConfigVendedor id={id} DataUpdate={handlerUpdate} />
         <Divider />
 
         {/* historico de vendas */}

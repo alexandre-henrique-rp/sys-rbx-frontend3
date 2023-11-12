@@ -121,7 +121,7 @@ function Navbar() {
         <Flex flexDir="column" m="10%">
           <List spacing={5}>
             {Dados.map((navItem: any) => {
-              if (navItem.id === 6 || navItem.id === 7 || navItem.id === 8) {
+              if (navItem.id === 99 || navItem.id === 97 || navItem.id === 98) {
                 const texto = navItem.text.split(' ')
                 const textoFornecedor = texto[texto.length - 1]
                 const fornecedor = textoFornecedor.trim()

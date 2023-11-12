@@ -1,18 +1,20 @@
-import axios from "axios";
 
-export const Feriado = async (token: any) => {
+export const Feriado = async () => {
   try {
-
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/feriados`, {
+    const BaseUrl: any = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+    const response = await fetch(`${BaseUrl}/feriados`, {
+        method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_API_TOKEN}`,
           "Content-Type": "application/json",
         },
+        cache: "no-store",
       });
-      return response.data.data;
-    
+      if(response.ok){
+        const data = await response.json();
+        return data.data;
+      }
   } catch (error: any) {
-    console.log(error.response.data.error);
-    return [];
+    throw !error.response.data ? error : error.response.data;
   }
 };

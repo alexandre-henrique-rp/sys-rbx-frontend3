@@ -1,4 +1,3 @@
-
 export const savetoken = async (data: any, Complementar: string) => {
   try {
     console.log(data);

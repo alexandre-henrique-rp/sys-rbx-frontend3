@@ -3,7 +3,7 @@ import { FaMoneyBillAlt } from 'react-icons/fa';
 import { GiCube } from 'react-icons/gi';
 import { MdBusiness } from 'react-icons/md';
 import { RiDashboardFill } from 'react-icons/ri';
-import { AiFillApi } from 'react-icons/ai';
+import { AiFillApi, AiFillProject } from 'react-icons/ai';
 
 const NavMenuItems = [
   {
@@ -48,6 +48,14 @@ const NavMenuItems = [
   },
   {
     id: 6,
+    url: '/producao',
+    text: 'Fila de Produção',
+    icon: AiFillProject,
+    iconComponent: <AiFillProject />,
+    permission: 'User',
+  },
+  {
+    id: 97,
     url: '/',
     text: 'Login Ribermax',
     icon: AiFillApi,
@@ -55,7 +63,7 @@ const NavMenuItems = [
     permission: 'Adm',
   },
   {
-    id: 7,
+    id: 98,
     url: '/',
     text: 'Login Renato',
     icon: AiFillApi,
@@ -63,7 +71,7 @@ const NavMenuItems = [
     permission: 'Adm',
   },
   {
-    id: 8,
+    id: 99,
     url: '/',
     text: 'Login Bragheto',
     icon: AiFillApi,

@@ -2,11 +2,33 @@
 import FetchRequest from "@/function/fetch/request/route";
 import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, useToast } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
+interface VendedorIdProps {
+  id: ReactNode
+  DataUpdate: any
+}
 
-export const ConfigVendedor = (props: { id: any, update: any }) => {
-  const IDVendedor = props.id
+async function GetRequest(id: string) {
+  const request = await fetch(`/api/user/get/${id}`)
+  const response = await request.json();
+  return response;
+}
+
+async function PutRequest( dados: any) {
+  const request = await fetch(`/api/vendedor/postConfig`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dados),
+  })
+  const response = await request.json();
+  return response;
+}
+
+export const ConfigVendedor = ({ id, DataUpdate }: VendedorIdProps) => {
+  const IDVendedor = id
   const toast = useToast();
   const [Ano, setAno] = useState('');
   const [Mes, setMes] = useState('');
@@ -24,16 +46,15 @@ export const ConfigVendedor = (props: { id: any, update: any }) => {
   const [ComicaoVe, setComicaoVe] = useState('');
   const [EntradaCont, setEntradaCont] = useState('');
   const [ComicaoCont, setComicaoCont] = useState('');
-  const {data: session} = useSession()
   const [Bloq, setBloq] = useState(false);
-  const [Vendedor, setVendedor] = useState<any|null>([]);
-  
+  const [Vendedor, setVendedor] = useState<any | null>([]);
+
 
   useEffect(() => {
     (async () => {
       try {
-        const GetVendedor = await FetchRequest.get(`/users/${IDVendedor}`);
-        const vendedor = GetVendedor.data;
+        const GetVendedor = await GetRequest(`${IDVendedor}`);
+        const vendedor = GetVendedor;
         setVendedor(vendedor)
       } catch (error) {
         console.log(error);
@@ -61,11 +82,11 @@ export const ConfigVendedor = (props: { id: any, update: any }) => {
 
   function numeroParaString(numero: any, limite?: number) {
     let result = `${numero}`;
-  
+
     if (limite !== undefined && limite < result.length) {
       result = result.slice(0, limite);
     }
-  
+
     return result;
   }
 
@@ -95,10 +116,9 @@ export const ConfigVendedor = (props: { id: any, update: any }) => {
         }
       };
 
-      const request = await FetchRequest.post(`/config-vendas`, Data);
-      const resposta = request.data;
-      console.log(resposta);
-      props.update(true)
+      const request = await PutRequest(Data);
+      console.log(request);
+      DataUpdate(true)
       toast({
         title: 'Salvo com sucesso',
         status: 'success',
@@ -108,7 +128,7 @@ export const ConfigVendedor = (props: { id: any, update: any }) => {
       setBloq(false);
       reset();
       setTimeout(() => {
-        props.update(false)
+        DataUpdate(false)
       }, 3000);
 
     } catch (error) {

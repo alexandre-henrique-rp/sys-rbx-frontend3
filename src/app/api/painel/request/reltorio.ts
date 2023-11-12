@@ -1,22 +1,22 @@
-import axios from "axios";
 
-
-export const Relatorio = async (DataIncicio: string, Vendedor: any, token: any) => {
+export const Relatorio = async (mes: any, ano: any, Vendedor: any,) => {
   try {
-    const processoData = new Date(DataIncicio);
-    const mes = processoData.getMonth() + 1;
-    const ano = processoData.getFullYear();
-
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/config-vendas?filters[vendedor][username][$eq]=${Vendedor}&filters[mes][$eq]=${mes}&filters[ano][$eq]=${ano}`,
+    const BaseUrl: any = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+    const response = await fetch(`${BaseUrl}/config-vendas?filters[vendedor][username][$eq]=${Vendedor}&filters[mes][$eq]=${mes}&filters[ano][$eq]=${ano}`,
       {
+        method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_API_TOKEN}`,
           "Content-Type": "application/json",
         },
+        cache: "no-store",
       }
     );
-    return response.data.data
+    if(response.ok){
+      const data = await response.json();
+      return data.data;
+    }
   } catch (error: any) {
-    return !!error.response.data.erro ? error.response.data.erro : error;
+    throw !!error.response.data.erro ? error.response.data.erro : error;
   }
 }

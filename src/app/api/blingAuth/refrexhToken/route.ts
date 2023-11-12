@@ -16,8 +16,8 @@ export async function POST(request: Request) {
       'Authorization': `Basic ${credentials}`,
     };
     const formData = new URLSearchParams();
-    formData.append('grant_type', 'authorization_code');
-    formData.append('code', data.code);
+    formData.append('grant_type', 'refresh_token');
+    formData.append('refresh_token', data.refresh);
 
     const response = await fetch('https://www.bling.com.br/Api/v3/oauth/token', {
       method: 'POST',
@@ -35,11 +35,6 @@ export async function POST(request: Request) {
           token: responseData.access_token,
           periodo: responseData.expires_in.toString(),
           update: new Date().toISOString(),
-          token_de_reutilizacao: responseData.refresh_token,
-          prazo_final: date.toISOString(),
-          alert10: false,
-          alert5: false,
-          alert1: false,
         }
       }
       const subRota = data.fornecedor.toLowerCase()
