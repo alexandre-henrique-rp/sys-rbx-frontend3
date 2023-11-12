@@ -8,7 +8,8 @@ declare module 'next-auth' {
       email: string;
       image: string;
       pemission: string;
-      primeiro_acesso: boolean
+      primeiro_acesso: boolean;
+      trello_id: string;
     }
   }
 }

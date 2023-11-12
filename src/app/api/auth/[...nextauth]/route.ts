@@ -30,6 +30,7 @@ const nextAuthOptions: NextAuthOptions = {
 
           const retorno = await res.data;
           const { jwt, user } = retorno;
+          console.log("🚀 ~ file: route.ts:33 ~ authorize ~ user:", user)
 
           const {
             confirmed,
@@ -38,7 +39,8 @@ const nextAuthOptions: NextAuthOptions = {
             id,
             email,
             pemission,
-            primeiro_acesso
+            primeiro_acesso,
+            trello_id
           } = await user;
 
           const response = {
@@ -50,6 +52,7 @@ const nextAuthOptions: NextAuthOptions = {
             blocked: blocked,
             pemission: pemission,
             primeiro_acesso,
+            trello_id
           };
 
           if (!jwt || !id || !username || !email) {
@@ -99,6 +102,8 @@ const nextAuthOptions: NextAuthOptions = {
         token.confirmed = user.confirmed;
         token.blocked = user.blocked;
         token.pemission = user.pemission;
+        token.trello_id = user.trello_id;
+        
 
         token.expiration = actualDateInSeconds + tokenExpirationInSeconds;
       } else {
@@ -116,7 +121,8 @@ const nextAuthOptions: NextAuthOptions = {
         !token?.name ||
         !token?.email ||
         !token?.expiration ||
-        !token?.pemission
+        !token?.pemission ||
+        !token?.trello_id
       ) {
         return null;
       }
@@ -128,6 +134,7 @@ const nextAuthOptions: NextAuthOptions = {
         pemission: token.pemission as string,
         confirmed: token.confirmed as boolean,
         blocked: token.blocked as boolean,
+        trello_id: token.trello_id as string,
       };
 
       session.token = token.jwt as string;

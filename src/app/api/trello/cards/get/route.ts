@@ -1,11 +1,11 @@
 import { nextAuthOptions } from "@/app/api/auth/[...nextauth]/route";
-import { Box } from "@chakra-ui/react";
 import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
-async function Request() {
+
+export async function GET() {
   const session = await getServerSession(nextAuthOptions);
   const idTrello = session?.user?.trello_id;
-  console.log("🚀 ~ file: page.tsx:8 ~ Request ~ idTrello:", idTrello)
   try {
     const token: any = process.env.TRELLO_TOKEN;
     const KEY: any = process.env.TRELLO_KEY;
@@ -20,32 +20,10 @@ async function Request() {
     })
     if(response.ok){
       const data = await response.json();
-      const CardsFilter = data.filter((card: any) => card.idBoard === idBoard);
-      const CardsFilterDueNotNul = CardsFilter.filter((card: any) => card.due !== null);
-      return CardsFilterDueNotNul;
+      return NextResponse.json(data, { status: 200 });
     }
   } catch (error: any) {
     console.log(error)
+    return NextResponse.json(error, { status: 500 });
   }
 }
-
-async function Producao() {
-
-  const Trello = await Request();
-  console.log("🚀 ~ file: page.tsx:17 ~ Producao ~ Trello:", Trello)
-
-
-
-  return (
-    <>
-      <Box w={'100%'} h={'100vh'}>
-        {JSON.stringify(Trello, null, 2)}
-        <Box></Box>
-        <Box></Box>
-      </Box>
-
-    </>
-  )
-}
-
-export default Producao
