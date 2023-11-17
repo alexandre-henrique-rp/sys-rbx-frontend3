@@ -17,6 +17,6 @@ export const Relatorio = async (mes: any, ano: any, Vendedor: any,) => {
       return data.data;
     }
   } catch (error: any) {
-    throw !!error.response.data.erro ? error.response.data.erro : error;
+    return !!error.response.data.erro ? error.response.data.erro : error;
   }
 }

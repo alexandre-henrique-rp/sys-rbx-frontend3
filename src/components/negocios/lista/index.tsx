@@ -2,12 +2,12 @@
 import { EtapasNegocio } from "@/data/etapaNegocio";
 import { Box, Flex, Table, TableContainer, Tbody, Td, Th, Thead, Tr, chakra, useToast } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
-import { Ausente } from "../ausente/page";
-import { useRouter } from "next/router";
+import Ausente from "../ausente";
+import { useRouter } from "next/navigation";
 // import Loading from "@/components/elements/loading";
 import { useSession } from "next-auth/react";
 import { NovoCliente } from "../novoCliente/page";
-import { Presente } from "../presnte";
+import Presente from "../presnte/page";
 import { SelectUser } from "@/components/painel/selectUser";
 import { SelectEmpresas } from "@/components/geral/SelectEmpresa";
 import { BtCreate } from "@/components/geral/BtCreate";
@@ -21,7 +21,7 @@ export async function handleRequest(uer: string) {
     const primeiroDiaTresMesesAtras = new Date(dataAtual.getFullYear(), dataAtual.getMonth() - 3, 1);
     const ultimoDiaMesAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 3, 0);
 
-    const request = await fetch(`src/app/api/negocio?DataIncicio=${primeiroDiaTresMesesAtras.toISOString()}&DataFim=${ultimoDiaMesAtual.toISOString()}&Vendedor=${uer}`)
+    const request = await fetch(`/api/negocio?DataIncicio=${primeiroDiaTresMesesAtras.toISOString()}&DataFim=${ultimoDiaMesAtual.toISOString()}&Vendedor=${uer}`)
     const response = await request.json()
 
     const filtro = response.filter((c: any) => c.attributes.etapa !== 6 && c.attributes.andamento !== 5)
@@ -37,7 +37,7 @@ export const PowerBi = () => {
   const router = useRouter()
   const { data: session } = useSession();
   const [data, setData] = useState([])
-  const [User, setUser] = useState('')
+  const [User, setUser] = useState<any>()
   const [load, setLoad] = useState<boolean>(true);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export const PowerBi = () => {
     const user: any = session?.user.name
     setUser(user)
     handleRequest(user)
-    setLoad(true);
+    setLoad(false);
   }, [session?.user.name]);
 
 
@@ -161,7 +161,7 @@ export const PowerBi = () => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      <Ausente user={User} />
+                      <Ausente Usuario={User}/>
                     </Tbody>
                   </Table>
                 </TableContainer>
@@ -203,7 +203,7 @@ export const PowerBi = () => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      <Presente user={User} />
+                      <Presente Usuario={User} />
                     </Tbody>
                   </Table>
                 </TableContainer>

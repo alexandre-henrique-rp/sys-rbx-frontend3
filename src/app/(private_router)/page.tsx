@@ -111,6 +111,12 @@ export default function Painel() {
               </Flex>
             </Flex>
             <Flex flexDirection={'column'} justifyContent={'center'} w={{ base: '5rem', md: '8rem'}}>
+              <FormLabel textAlign={'center'} color={'white'} fontSize={'sm'}>Meta do mês</FormLabel>
+              <Flex color={'white'} justifyContent={'center'} alignItems={'center'}>
+                <Text>{Record.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</Text>
+              </Flex>
+            </Flex>
+            <Flex flexDirection={'column'} justifyContent={'center'} w={{ base: '5rem', md: '8rem'}}>
               <FormLabel textAlign={'center'} color={'white'} fontSize={'sm'}>Em Andamento</FormLabel>
               <Flex p={1} bg={'orange.400'} color={'white'} justifyContent={'center'} alignItems={'center'} rounded={'1rem'}>
                 <Text>{Andamento}</Text>

@@ -17,6 +17,6 @@ export const DataRetorno = async (DataIncicio: string, DataFim: string, Vendedor
       return data.data;
     }
   } catch (error: any) {
-    throw !error.response.data ? error : error.response.data;
+    return !error.response.data ? error : error.response.data;
   }
 }

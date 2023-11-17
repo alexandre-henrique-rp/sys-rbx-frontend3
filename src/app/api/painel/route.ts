@@ -10,11 +10,11 @@ import { UserRecord } from "./request/userRecord";
 
 
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const DataIncicio: any = searchParams.get("DataIncicio");
+  const DataFim: any = searchParams.get("DataFim");
+  const Vendedor: any = searchParams.get("Vendedor");
   try {
-    const { searchParams } = new URL(request.url);
-    const DataIncicio: any = searchParams.get("DataIncicio");
-    const DataFim: any = searchParams.get("DataFim");
-    const Vendedor: any = searchParams.get("Vendedor");
 
     const date = new Date(DataIncicio);
     const month = date.getMonth() + 1;

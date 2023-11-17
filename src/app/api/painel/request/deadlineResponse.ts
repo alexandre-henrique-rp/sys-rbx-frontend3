@@ -17,6 +17,6 @@ export const DeadLine = async (DataIncicio: string, DataFim: string, Vendedor: a
       return data.data;
     }
   } catch (error: any) {
-    throw !error.response.data ? error : error.response.data;
+    return !error.response.data ? error : error.response.data;
   }
 }

@@ -3,7 +3,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 
-import { PowerBi } from "@/components/negocios/lista/page";
+import { PowerBi } from "@/components/negocios/lista";
 
 function Negocios() {
 
