@@ -1,10 +1,8 @@
 'use client'
 
-// import { LogEmpresa } from "@/function/LogEmpresa";
-import FetchApi from "@/function/fetch/route";
+import { LogEmpresa } from "@/app/api/lib/logEmpresa";
 import { primeiroNome } from "@/function/mask/primeiroNome";
 import { Box, Button, Flex, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Text, useDisclosure, useToast } from "@chakra-ui/react";
-import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
@@ -39,8 +37,14 @@ export const PessoasData = (props: { data: any; respData: any; respAtualizar: an
           status: false,
         },
       };
-      const response = await FetchApi({ url: `/representantes/${ID}`, method: 'PUT', data: update });
-      const resposta = response.data;
+      const response = await fetch(`/api/representantes/put/${ID}`,{
+         method: 'PUT', 
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(update),
+        });
+      const resposta = response.json();
       toast({
         title: 'Representante removido permanente com sucesso',
         status: 'success',
@@ -48,7 +52,7 @@ export const PessoasData = (props: { data: any; respData: any; respAtualizar: an
         isClosable: true,
         position: 'top-right',
       })
-      // await LogEmpresa(props.empresaId, 'representante Remove', Vendedor)
+      await LogEmpresa(props.empresaId, 'representante Remove', Vendedor)
       console.log(resposta)
       props.reload()
       onClose()

@@ -1,4 +1,4 @@
-import axios from "axios";
+
 import NextAuth, { NextAuthOptions } from "next-auth"
 import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -19,16 +19,15 @@ const nextAuthOptions: NextAuthOptions = {
             identifier: credentials.email,
             password: credentials.password,
           };
-          const res = await axios({
-            url: `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/auth/local`,
-            method: "POST", 
-            data: dados,
+          const request = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/auth/local`, {
+            method: 'POST',
             headers: {
               "Content-Type": "application/json",
-            }
+            },
+            body: JSON.stringify(dados),
+            cache: 'no-store'
           });
-
-          const retorno = await res.data;
+          const retorno = await request.json();
           const { jwt, user } = retorno;
           console.log("🚀 ~ file: route.ts:33 ~ authorize ~ user:", user)
 

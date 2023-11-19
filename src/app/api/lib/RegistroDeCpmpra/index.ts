@@ -1,5 +1,3 @@
-import FetchRequest from "@/function/fetch/request/route";
-import axios from "axios";
 
 export const RegCompra = async (id: number, valor: string) => {
   try {
@@ -10,8 +8,17 @@ export const RegCompra = async (id: number, valor: string) => {
       },
     };
 
-    const response = await FetchRequest.put(`/empresas/${id}`, bodyData);
-    console.log(response.data);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/empresas/${id}`, {
+      method: 'PUT',
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_API_TOKEN}`,
+      },
+      body: JSON.stringify(bodyData),
+    
+    });
+    const data = await response.json();
+    console.log(data);
   } catch (error: any) {
     console.log(error.response.data);
   }

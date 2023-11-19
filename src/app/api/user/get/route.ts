@@ -10,13 +10,14 @@ export async function GET(request: Request) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
     const retorno = await response.json();
     const userRetorno: any = retorno
 
     return NextResponse.json(userRetorno, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
-    throw error
+    return NextResponse.json(!!error.response.data ? error.response.data : error, { status: !error.response.data ? 500 : 400 });
   }
 };

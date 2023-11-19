@@ -7,7 +7,6 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import axios from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 // import { BTMPdf } from "../BTMPdf";
@@ -57,98 +56,127 @@ export const CardList = (props: { id: string; onloading: any; desbilitar: any })
       position: 'top-right',
     });
 
-    await axios({
-      url: `/api/db/nLote/${numero}`,
+    await fetch(`/api/db/nLote/${numero}`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      }
     })
-      .then(() => { })
+    .then((data) => data.json())
+    .then((response) => {
+      console.log(response)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+
+    await fetch(`/api/query/pedido/${numero}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    })
+    .then((data) => data.json())
+    .then(async (response) => {
+      console.log(response);
+      await fetch(`/api/db/trello/${numero}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+      .then((data) => data.json())
+      .then((response) => {
+        console.log(response)
+      })
       .catch((error) => {
         console.log(error)
+      })
+
+      await fetch(`/api/db/empresas/EvaleuateSale?id=${id}&vendedor=${session?.user.name}&vendedorId=${session?.user.id}&valor=${ValorVenda}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+      .then((data) => data.json())
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+
+      toast({
+        title: "Pedido realizado com sucesso!",
+        status: "success",
+        duration: 5000,
+        position: 'top-right',
       });
-
-    await axios({
-      url: "/api/query/pedido/" + numero,
-      method: "POST",
+      const requeste = await fetch('/');
+      const resp = await requeste.json();
+      setData(resp);
+      setLoad(false)
+      setIdLoad('')
+      // router.push("/negocios/" + props.id);
     })
-      .then(async (response: any) => {
-        console.log(response.data)
-        await axios({
-          url: `/api/db/trello/${numero}`,
-          method: "POST",
-        })
-          .then((response) => {
-            console.log(response.data)
-          })
-          .catch((error) => {
-            console.log(error)
-          });
+    .catch(async (error) => {
+      console.log(error.response.data.message);
+      console.log(error);
+      if (error.response.data.message) {
 
-        await axios(`/api/db/empresas/EvaleuateSale?id=${id}&vendedor=${session?.user.name}&vendedorId=${session?.user.id}&valor=${ValorVenda}`)
-          .then((response) => {
-            console.log(response.data)
-          })
-          .catch((error) => {
-            console.log(error)
-          });
+        await fetch(`/api/db/trello/${numero}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        .then((data) => data.json())
+        .then((response) => {
+          console.log(response)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+  
+        await fetch(`/api/db/empresas/EvaleuateSale?id=${id}&vendedor=${session?.user.name}&vendedorId=${session?.user.id}&valor=${ValorVenda}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        .then((data) => data.json())
+        .then((response) => {
+          console.log(response)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+
         toast({
-          title: "Pedido realizado com sucesso!",
-          status: "success",
+          title: "Opss.",
+          description: error.response.data.message,
+          status: "info",
           duration: 5000,
           position: 'top-right',
+          isClosable: true,
         });
-        const requeste = await axios('/');
-        const resp = requeste.data;
-        setData(resp);
         setLoad(false)
         setIdLoad('')
-        // router.push("/negocios/" + props.id);
-      })
-      .catch(async (err) => {
-        console.log(err.response.data.message);
-        console.log(err);
-        if (err.response.data.message) {
-          await axios({
-            url: `/api/db/trello/${numero}`,
-            method: "POST",
-          })
-            .then((response) => {
-              console.log(response.data)
-            })
-            .catch((error) => {
-              console.log(error)
-            });
-
-          await axios(`/api/db/empresas/EvaleuateSale?id=${id}&vendedor=${session?.user.name}&vendedorId=${session?.user.id}&valor=${ValorVenda}`)
-            .then((response) => {
-              console.log(response.data)
-            })
-            .catch((error) => {
-              console.log(error)
-            });
-          toast({
-            title: "Opss.",
-            description: err.response.data.message,
-            status: "info",
-            duration: 5000,
-            position: 'top-right',
-            isClosable: true,
-          });
-          setLoad(false)
-          setIdLoad('')
-          router.push("/negocios/" + props.id);
-        } else {
-          toast({
-            title: "Opss.",
-            description: "Entre en contata com o suporte",
-            status: "error",
-            duration: 3000,
-            position: 'top-right',
-            isClosable: true,
-          });
-          setLoad(false)
-          setIdLoad('')
-        }
-      });
+        router.push("/negocios/" + props.id);
+      } else {
+        toast({
+          title: "Opss.",
+          description: "Entre en contata com o suporte",
+          status: "error",
+          duration: 3000,
+          position: 'top-right',
+          isClosable: true,
+        });
+        setLoad(false)
+        setIdLoad('')
+      }
+    })
   };
 
   if (LoadGeral) {

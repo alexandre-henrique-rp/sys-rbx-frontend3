@@ -1,15 +1,25 @@
 'use client';
 import { Box, Button, Flex, FormControl, FormLabel, GridItem, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, SimpleGrid, Textarea, useDisclosure, useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-
 import { useSession } from 'next-auth/react';
-import axios from 'axios';
 import { capitalizeWords } from '@/function/mask/string';
 import { PessoasData } from '../pessoas/page';
 import FetchApi from '@/function/fetch/route';
 // import { LogEmpresa } from '@/function/LogEmpresa';
 import FetchRequest from '@/function/fetch/request/route';
+import { LogEmpresa } from '@/app/api/lib/logEmpresa';
 
+async function GetVendedores() {
+  const request = await fetch('/api/user/get', {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  })
+  const response = await request.json();
+  return response;
+}
 
 export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
   const [dados, setDados] = useState<any>([]);
@@ -33,8 +43,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
   useEffect(() => {
     (async () => {
       try {
-        const Response = await FetchRequest.get(`/users`);
-        const dataVendedor = Response;
+        const dataVendedor = await GetVendedores()
         setVendedores(dataVendedor);
         GetRepresentante();
       } catch (error) {
@@ -72,9 +81,15 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
           empresa: props.Resp
         }
       }
-      const PostSave = await FetchApi({ url: `/representantes`, method: 'POST', data: Data })
-      if (PostSave.data) {
-        // await LogEmpresa(props.Resp, 'Representante Create', Vendedor)
+      const PostSave = await fetch(`/api/representantes/post`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(Data),
+      })
+      const PostSaveResponse = await PostSave.json();
+      if (!!PostSaveResponse) {
         toast({
           title: 'Representante adicionado com sucesso',
           status: 'success',
@@ -97,9 +112,16 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
     try {
       setBloq(true)
       const idPessoa = idExcluir;
-      const excluir = await FetchApi({ url: `/representantes/${idPessoa}`, method: 'PUT', data: { data: { user: null } } });
-      if (excluir.data) {
-        // await LogEmpresa(props.Resp, 'DELETE Representante', Vendedor)
+      const excluir = await fetch(`/api/representantes/delete/${idPessoa}`,{ 
+        method: 'DELETE', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: { user: null } })
+       });
+       const excluirResponse = await excluir.json();
+      if (!!excluirResponse) {
+        await LogEmpresa(props.Resp, 'DELETE Representante', Vendedor)
         toast({
           title: 'Representante removido com sucesso',
           status: 'success',
@@ -149,9 +171,16 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
           permissao: VendedorId == session?.user.id ? 'User' : 'Adm',
         }
       }
-      const PostSave = await FetchApi({ url: `/representantes`, method: 'POST', data: Data })
-      if (PostSave.data) {
-        // await LogEmpresa(props.Resp, 'Representante Update', Vendedor)
+      const PostSave = await fetch(`/api/representantes/put`,{ 
+        method: 'post', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(Data),
+      })
+      const PostSaveResponse = await PostSave.json();
+      if (PostSaveResponse) {
+        await LogEmpresa(props.Resp, 'Representante Update', Vendedor)
         toast({
           title: 'Representante editado com sucesso',
           status: 'success',

@@ -29,23 +29,22 @@ import { CompPessoa } from "@/components/geral/compPessoa/page";
 import { capitalizeWords } from "@/function/mask/string";
 import { PrazoPg } from "@/components/geral/prazoDePagamento";
 import { RestData } from "@/components/geral/dataReset";
-import { GetCnpj } from "@/function/GetCnpj";
 import FetchRequest from "@/function/fetch/request/route";
+import { GetCnpj } from "@/function/getCnpj";
 
-
-export async function PostEmpresa(data: any) {
-  const requeste = await fetch(`/api/empresa/post`, {
+ async function PostEmpresa(data: any) {
+  const requeste = await fetch(`src/app/api/empresa/post`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  });
+  })
   const response = await requeste.json();
   return response;
 }
 
-export async function PutEmpresa(data: any, id: string) {
+async function PutEmpresa(data: any, id: string) {
   const request = await fetch(`src/app/api/empresa/put/${id}`, {
     method: "PUT",
     headers: {
