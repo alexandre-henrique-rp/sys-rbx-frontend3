@@ -1,5 +1,8 @@
 'use client';
 import Loading from "@/app/loading";
+import { BodyChat } from "@/components/negocios/bobychat";
+import { NegocioFooter } from "@/components/negocios/negocioFooter";
+import { NegocioHeader } from "@/components/negocios/negocioHeader";
 import { Box, Flex, useToast } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
@@ -31,7 +34,7 @@ export default function CreateNegocio({ params }: InfosParams) {
   const [Status, setStatus] = useState("");
   const [Deadline, setDeadline] = useState("");
   const [DataRetorno, setDataRetorno] = useState("");
-  const [Nome, setNome] = useState("");
+  const [Nome, setNome] = useState<string>("");
   const [Historia, setHistoria] = useState([]);
   const [ChatHistory, setChatHistory] = useState([]);
   const [Etapa, setEtapa] = useState<any | null>();
@@ -51,21 +54,19 @@ export default function CreateNegocio({ params }: InfosParams) {
   useEffect(() => {
     (async () => {
       try {
-        const request = await fetch(`/api/negocio/get/${id}`);
-  const response = await request.json();
         const res = await GetRequest(id);
-        setData(res.data)
-        setnBusiness(res.data.attributes.nBusiness);
-        setApproach(res.data.attributes.Approach);
-        setBudget(res.data.attributes.Budget);
-        setStatus(res.data.attributes.andamento);
-        setDeadline(res.data.attributes.deadline);
-        setDataRetorno(res.data.attributes.DataRetorno);
-        setHistoria(res.data.attributes.history);
-        setChatHistory(res.data.attributes.incidentRecord);
-        setEtapa(res.data.attributes.etapa);
-        setMperca(res.data.attributes.Mperca);
-        setNome(res.data.attributes.empresa.data.attributes.nome);
+        setData(res)
+        setnBusiness(res.attributes.nBusiness);
+        setApproach(res.attributes.Approach);
+        setBudget(res.attributes.Budget);
+        setStatus(res.attributes.andamento);
+        setDeadline(res.attributes.deadline);
+        setDataRetorno(res.attributes.DataRetorno);
+        setHistoria(res.attributes.history);
+        setChatHistory(res.attributes.incidentRecord);
+        setEtapa(res.attributes.etapa);
+        setMperca(res.attributes.Mperca);
+        setNome(res.attributes.empresa.data.attributes.nome);
         // fim do loading
         setLoadingGeral(false);
 
@@ -73,7 +74,7 @@ export default function CreateNegocio({ params }: InfosParams) {
         console.log(error);
         toast({
           title: "Ops",
-          description: "erro ao recuperar as informações \n" + JSON.stringify(!error.response.data ? error : error.response.data, null, 2),
+          description: "erro ao recuperar as informações iniciais \n" + JSON.stringify(error, null, 2),
           status: "error",
           duration: 9000,
           isClosable: true,
@@ -89,14 +90,14 @@ export default function CreateNegocio({ params }: InfosParams) {
       (async () => {
         try {
           const res = await GetRequest(id);
-          setChatHistory(res.data.attributes.incidentRecord);
+          setChatHistory(res.attributes.incidentRecord);
           // fim do loading
           setLoading(false);
         } catch (error: any) {
           console.log(error);
           toast({
             title: "Ops",
-            description: "erro ao recuperar as informações \n" + JSON.stringify(!error.response.data ? error : error.response.data, null, 2),
+            description: "erro ao recuperar as informações \n" + JSON.stringify(error, null, 2),
             status: "error",
             duration: 9000,
             isClosable: true,
@@ -114,7 +115,7 @@ export default function CreateNegocio({ params }: InfosParams) {
         setLoading(true);
         try {
           const res = await GetRequest(id);
-          setChatHistory(res.data.attributes.incidentRecord);
+          setChatHistory(res.attributes.incidentRecord);
           // fim do loading
           setLoading(false);
           setMsg2(false)
@@ -122,7 +123,7 @@ export default function CreateNegocio({ params }: InfosParams) {
           console.log(error);
           toast({
             title: "Ops",
-            description: "erro ao recuperar as informações \n" + JSON.stringify(!error.response.data ? error : error.response.data, null, 2),
+            description: "erro ao recuperar as informações \n" + JSON.stringify(error, null, 2),
             status: "error",
             duration: 9000,
             isClosable: true,
@@ -162,7 +163,7 @@ export default function CreateNegocio({ params }: InfosParams) {
       console.log(error);
       toast({
         title: "Ops",
-        description: "erro ao recuperar as informações \n" + JSON.stringify(!error.response.data ? error : error.response.data, null, 2),
+        description: "erro ao recuperar as informações \n" + JSON.stringify(error, null, 2),
         status: "error",
         duration: 9000,
         isClosable: true,
@@ -185,9 +186,10 @@ export default function CreateNegocio({ params }: InfosParams) {
 
   return (
     <>
-      <Flex w="100%" h="100vh" flexDirection={'column'} justifyContent={'space-between'} >
-        {/* <Box bg={'gray.800'} w="full" p={5} color={'white'}>
+      <Flex w="100%" h="100vh" flexDirection={'column'} justifyContent={'space-between'} bg={'gray.800'} >
+        <Box  w="full" p={5} color={'white'}>
           <NegocioHeader
+            id={id}
             title={Nome}
             nBusiness={nBusiness}
             Approach={Approach}
@@ -208,8 +210,8 @@ export default function CreateNegocio({ params }: InfosParams) {
           <BodyChat conteudo={ChatHistory} loading={loading} />
         </Box>
         <Box bg={'gray.800'} w="full">
-          <NegocioFooter data={ChatHistory} onGetValue={getMsg} />
-        </Box> */}
+          <NegocioFooter id={id} data={ChatHistory} onGetValue={getMsg} />
+        </Box>
       </Flex>
     </>
   );

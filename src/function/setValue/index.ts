@@ -1,3 +1,3 @@
 export const SetValue = (numero: string) => {
-  return numero.replace(/[^0-9]/g, '');
+  return !!numero && numero.replace(/[^0-9]/g, '');
 }

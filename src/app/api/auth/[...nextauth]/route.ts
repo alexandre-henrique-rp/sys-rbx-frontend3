@@ -29,7 +29,6 @@ const nextAuthOptions: NextAuthOptions = {
           });
           const retorno = await request.json();
           const { jwt, user } = retorno;
-          console.log("🚀 ~ file: route.ts:33 ~ authorize ~ user:", user)
 
           const {
             confirmed,

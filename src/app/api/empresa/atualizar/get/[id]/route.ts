@@ -20,6 +20,6 @@ export async function GET(request: Request, context: { params: any }) {
     return NextResponse.json(retorno.data, { status: 200 });
   } catch (error: any) {
     console.log(!error.response.data.erro ? error : error.response.data.erro);
-    throw !error.response.data ? error : error.response.data.erro;
+    return NextResponse.json({ error: !error.response.data.erro ? error : error.response.data.erro }, { status: 500 });
   }
 }

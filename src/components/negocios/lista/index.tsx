@@ -15,7 +15,7 @@ import { StatusAndamento } from "@/data/statusAndamento";
 import { SetValue } from "@/function/setValue";
 import Loading from "@/app/loading";
 
-export async function handleRequest(uer: string) {
+async function handleRequest(uer: string) {
   try {
     const dataAtual = new Date();
     const primeiroDiaTresMesesAtras = new Date(dataAtual.getFullYear(), dataAtual.getMonth() - 3, 1);
@@ -41,19 +41,23 @@ export const PowerBi = () => {
   const [load, setLoad] = useState<boolean>(true);
 
   useEffect(() => {
-    setLoad(true);
-    const user: any = session?.user.name
-    setUser(user)
-    handleRequest(user)
-    setLoad(false);
+    (async () => {
+      setLoad(true);
+      const user: any = session?.user.name
+      setUser(user)
+      const response = await handleRequest(user)
+      setData(response)
+      setLoad(false);
+    })();
   }, [session?.user.name]);
 
 
-  function handleUserChange(user: React.SetStateAction<any>) {
+  async function handleUserChange(user: React.SetStateAction<any>) {
     setLoad(true);
     const usuario = user
     setUser(usuario)
-    handleRequest(usuario)
+    const response = await handleRequest(usuario)
+    setData(response)
     setLoad(false);
   }
 
@@ -85,7 +89,7 @@ export const PowerBi = () => {
   return (
     <>
       <Box w={'100%'}>
-        <Flex px={5} mt={5} mb={10} justifyContent={'space-between'} w={'100%'}>
+        <Flex px={5} mt={5} mb={10} justifyContent={'space-between'} w={'100%'} alignItems={'center'}>
           <Flex gap={16}>
             <Box>
               <SelectUser onValue={handleUserChange} user={User} />
@@ -94,8 +98,9 @@ export const PowerBi = () => {
               <SelectEmpresas Usuario={User} onValue={handleEnpresa} />
             </Box>
           </Flex>
-
-          <BtCreate user={User} onLoading={handleLoad} />
+          <Flex w={'100%'} mt={5} justifyContent={'flex-end'}>
+            <BtCreate user={User} onLoading={handleLoad} />
+          </Flex>
 
         </Flex>
         <Box w='100%' display={{ lg: 'flex', sm: 'block' }} p={{ lg: 3, sm: 5 }}>
@@ -134,7 +139,7 @@ export const PowerBi = () => {
                             <Td color={'white'} w={'20px'} p={2} textAlign={'center'} fontSize={'12px'} borderBottom={'1px solid #CBD5E0'}>{itens.attributes.empresa.data?.attributes.nome}</Td>
                             <Td color={'white'} fontSize={'12px'} p={2} textAlign={'center'} borderBottom={'1px solid #CBD5E0'}>{etapa}</Td>
                             <Td color={'white'} fontSize={'12px'} p={2} textAlign={'center'} borderBottom={'1px solid #CBD5E0'}>{statusRepresente}</Td>
-                            <Td color={'white'} fontSize={'12px'} p={2} textAlign={'center'} borderBottom={'1px solid #CBD5E0'}>{SetValue(itens.attributes.Budget)}</Td>
+                            <Td color={'white'} fontSize={'12px'} p={2} textAlign={'center'} borderBottom={'1px solid #CBD5E0'}>{!!itens.attributes.Budget? SetValue(itens.attributes.Budget): 'R$ 0,00'}</Td>
                             <Td color={'white'} bg={colorLine} p={2} textAlign={'center'} fontSize={'12px'} borderBottom={'1px solid #CBD5E0'}>{dataFormatada}</Td>
                           </Tr>
                         </>
@@ -161,7 +166,7 @@ export const PowerBi = () => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      <Ausente Usuario={User}/>
+                      <Ausente Usuario={User} />
                     </Tbody>
                   </Table>
                 </TableContainer>

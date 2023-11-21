@@ -5,6 +5,7 @@ import {
   ButtonGroup,
   ChakraProvider,
   extendTheme,
+  Flex,
   IconButton,
   Popover,
   PopoverArrow,
@@ -131,7 +132,7 @@ export const BtCreate = (props: { user: any; onLoading: any }) => {
       })
       const PostBusiness = await RequestBusiness.json();
       console.log(PostBusiness.data.nBusiness);
-        router.push(`/negocios/${PostBusiness.data.nBusiness}`)
+      router.push(`/negocios/${PostBusiness.data.nBusiness}`)
 
     } catch (error) {
       console.error(error)
@@ -139,70 +140,71 @@ export const BtCreate = (props: { user: any; onLoading: any }) => {
   };
 
   return (
-    <ChakraProvider theme={theme}>
-      <Popover
-        placement="bottom"
-        closeOnBlur={false}
-        isOpen={isOpen}
-        onOpen={onOpen}
-        onClose={onClose}
-      >
-        <PopoverTrigger>
-          <IconButton
-            aria-label="Add Negocio"
-            rounded={'3xl'}
-            colorScheme="whatsapp"
-            me={'5rem'}
-          >
-            <MdOutlineAddCircleOutline color="#ffff" size={'2rem'} />
-          </IconButton>
-        </PopoverTrigger>
-        <PopoverContent color="white" bg="blue.800" borderColor="blue.800">
-          <PopoverHeader pt={4} fontWeight="bold" border="0">
-            Criar novo Negócio
-          </PopoverHeader>
-          <PopoverArrow bg="blue.800" />
-          <PopoverBody>
-            Preencha com as informações abaixo
-            <Select
-              mt={2}
-              onChange={(e) => setEmpresa(e.target.value)}
-              value={Empresa}
+    
+      <ChakraProvider theme={theme}>
+        <Popover
+          placement="bottom"
+          closeOnBlur={false}
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onClose={onClose}
+        >
+          <PopoverTrigger>
+            <IconButton
+              aria-label="Add Negocio"
+              rounded={'3xl'}
+              colorScheme="whatsapp"
+              me={'5rem'}
             >
-              <option style={{ backgroundColor: "#2A4365" }} value="">Selecione uma empresa</option>
-              {work.map((item: any) => {
-                return (
-                  <option
-                    style={{ backgroundColor: "#2A4365" }}
-                    key={item.id}
-                    value={item.id}
-                  >
-                    {item.attributes.nome}
-                  </option>
-                );
-              })}
-            </Select>
-          </PopoverBody>
-          <PopoverFooter
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            pb={4}
-          >
-            <ButtonGroup size="sm">
-              <Button colorScheme="blue" onClick={onClose}>
-                Cancelar
-              </Button>
-              <Button
-                colorScheme="whatsapp"
-                onClick={salve}
+              <MdOutlineAddCircleOutline color="#ffff" size={'2rem'} />
+            </IconButton>
+          </PopoverTrigger>
+          <PopoverContent color="white" bg="blue.800" borderColor="blue.800">
+            <PopoverHeader pt={4} fontWeight="bold" border="0">
+              Criar novo Negócio
+            </PopoverHeader>
+            <PopoverArrow bg="blue.800" />
+            <PopoverBody>
+              Preencha com as informações abaixo
+              <Select
+                mt={2}
+                onChange={(e) => setEmpresa(e.target.value)}
+                value={Empresa}
               >
-                Salvar
-              </Button>
-            </ButtonGroup>
-          </PopoverFooter>
-        </PopoverContent>
-      </Popover>
-    </ChakraProvider>
+                <option style={{ backgroundColor: "#2A4365" }} value="">Selecione uma empresa</option>
+                {work.map((item: any) => {
+                  return (
+                    <option
+                      style={{ backgroundColor: "#2A4365" }}
+                      key={item.id}
+                      value={item.id}
+                    >
+                      {item.attributes.nome}
+                    </option>
+                  );
+                })}
+              </Select>
+            </PopoverBody>
+            <PopoverFooter
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              pb={4}
+            >
+              <ButtonGroup size="sm">
+                <Button colorScheme="blue" onClick={onClose}>
+                  Cancelar
+                </Button>
+                <Button
+                  colorScheme="whatsapp"
+                  onClick={salve}
+                >
+                  Salvar
+                </Button>
+              </ButtonGroup>
+            </PopoverFooter>
+          </PopoverContent>
+        </Popover>
+      </ChakraProvider>
   );
 };
