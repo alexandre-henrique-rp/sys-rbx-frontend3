@@ -15,7 +15,7 @@ export const GetPrazoPg = (props: { id: any; retorno: any; envio: any }) => {
     if (props.id) {
       (async () => {
         try {
-          const request = await fetch(`/api/db/empresas/getMaxPrazoPg?EmpresaId=${props.id}`, {
+          const request = await fetch(`/api/empresa/MaxPrazoPg?EmpresaId=${props.id}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -61,7 +61,6 @@ export const GetPrazoPg = (props: { id: any; retorno: any; envio: any }) => {
               Selecione uma tabela
             </option>
             {Data.map((i: any) => {
-              console.log(i)
               return (
                 <option style={{ backgroundColor: "#1A202C" }} key={i.id} value={i.attributes.value}>
                   {i.attributes.title}

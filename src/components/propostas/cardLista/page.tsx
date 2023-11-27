@@ -47,7 +47,7 @@ export const CardList = (props: { id: string; onloading: any; desbilitar: any })
     })();
   }, [props]);
 
-  const pedido = async (numero: string, id: any, ValorVenda: string) => {
+  const pedido = async (numero: any, id: any, ValorVenda: any) => {
     setLoad(true)
     toast({
       title: "Só um momento estou processando!",

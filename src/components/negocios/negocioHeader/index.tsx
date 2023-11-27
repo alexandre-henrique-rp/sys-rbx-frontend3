@@ -201,7 +201,7 @@ export const NegocioHeader = (props: {
 
   const masckValor = (e: any) => {
     const valor = e.target.value.replace('.', '').replace(',', '')
-    const valorformat = SetValue(valor);
+    const valorformat: any = SetValue(valor);
     console.log(valor.length)
     if (valor.length > 15) {
       setBudget(valorformat.slice(-15))

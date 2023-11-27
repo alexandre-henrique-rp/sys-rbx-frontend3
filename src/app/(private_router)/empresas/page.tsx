@@ -4,37 +4,66 @@ import { CarteiraAusente } from "@/components/empresa/carteira/semvededor";
 import { CarteiraVendedor } from "@/components/empresa/carteira/vendedor";
 import { FiltroEmpresa } from "@/components/empresa/filtro";
 import LoadingComponents from "@/components/loading";
-import FetchApi from "@/function/fetch/route";
 import { processarSemVendedorInteracoes } from "@/function/prossesador/semVendedor";
 import { processarVendedorInteracoes } from "@/function/prossesador/vendedor";
-import { Box, Button, Flex, FormLabel, Heading, Input, Spinner, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading } from "@chakra-ui/react";
 import { startOfDay } from "date-fns";
 import { getServerSession } from "next-auth";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+async function GetInteracoesVendedor() {
+  const BaseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+  const Token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+  const session = await getServerSession
+  (nextAuthOptions);
+  const dataAtual = startOfDay(new Date());
+  try {
+    const request = await fetch(`${BaseUrl}/empresas?filters[user][username][$containsi]=${session?.user.name}&sort[0]=nome%3Aasc&fields[0]=nome&populate[user][fields][0]=username&populate[businesses]=*&populate[interacaos][fields][0]=proxima&populate[interacaos][fields][1]=vendedor_name&populate[interacaos][fields][2]=status_atendimento&pagination[limit]=8000`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${Token}`,
+      },
+      cache: "no-store"
+    })
+    const response = await request.json();
+    const lista = processarVendedorInteracoes(dataAtual, response.data, session);
+    return lista
+  } catch (error: any) {
+    console.log(error)
+    return []
+  }
+}
 
+async function GetInteracoesSemVendedor() {
+  const BaseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+  const Token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+  const dataAtual = startOfDay(new Date());
+  const session = await getServerSession
+  (nextAuthOptions);
+  try {
+    const request = await fetch(`${BaseUrl}/empresas?filters[user][username][$null]=true&sort[0]=nome%3Aasc&fields[0]=nome&populate[user][fields][0]=username&populate[businesses]=*&populate[interacaos][fields][0]=proxima&populate[interacaos][fields][1]=vendedor_name&populate[interacaos][fields][2]=status_atendimento&pagination[limit]=8000`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${Token}`,
+      },
+      cache: "no-store"
+    })
+    const response = await request.json();
+    const lista = processarSemVendedorInteracoes(dataAtual, response.data, session);
+    return response.data
+  } catch (error: any) {
+    console.log(error)
+    return []
+  }
+}
 
 async function Empresas() {
-  const dataAtual = startOfDay(new Date());
-  const session = await getServerSession(nextAuthOptions);
 
-
-  const urlVendedor = `/empresas?filters[user][username][$containsi]=${session?.user.name}&sort[0]=nome%3Aasc&fields[0]=nome&populate[user][fields][0]=username&populate[businesses]=*&populate[interacaos][fields][0]=proxima&populate[interacaos][fields][1]=vendedor_name&populate[interacaos][fields][2]=status_atendimento&pagination[limit]=8000`;
-
-  const urlSemVendedor = `/empresas?filters[user][username][$null]=true&sort[0]=nome%3Aasc&fields[0]=nome&populate[user][fields][0]=username&populate[businesses]=*&populate[interacaos][fields][0]=proxima&populate[interacaos][fields][1]=vendedor_name&populate[interacaos][fields][2]=status_atendimento&pagination[limit]=8000`;
-
-  const repostaVendedor = await FetchApi({ url: urlVendedor, method: 'GET', isCache: 'no-store' });
-  const retornoVendedor = repostaVendedor.data;
-
-  const repostaSemVendedor = await FetchApi({ url: urlSemVendedor, method: 'GET', isCache: 'no-store' });
-  const retorno = repostaSemVendedor.data;
-
-
-  const ListaVendedor = processarVendedorInteracoes(dataAtual, retornoVendedor, session);
-  const ListaSemVendedor = processarSemVendedorInteracoes(dataAtual, retorno, session);
+  const ListaVendedor = await GetInteracoesVendedor();
+  const ListaSemVendedor = await GetInteracoesVendedor();
 
 
   return (

@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BsArrowLeftCircleFill, BsTrash } from "react-icons/bs";
+import { ProdutiList } from "../ListaDeProduto";
 
 const tempo = () => {
   const currentTime = new Date();
@@ -27,12 +28,14 @@ export const FormProposta = (props: {
   const { data: session } = useSession();
   const [loadingTable, setLoadingTable] = useState<boolean>(false);
   const [loadingGeral, setLoadingGeral] = useState<boolean>(false);
+  const [DisableProd, setDisableProd] = useState<boolean>(false);
   const [RelatEnpresa, setRelatEmpresa] = useState([]);
   const [RelatEnpresaId, setRelatEmpresaId] = useState("");
   const [Nome, SetNome] = useState('');
+  const [Data, setData] = useState<any>([]);
   const [ListItens, setItens] = useState<any>([]);
+  const [Produtos, setProdutos] = useState<any>([]);
   const [date, setDate] = useState<string>(tempo());
-  console.log("🚀 ~ file: index.tsx:25 ~ date:", date)
   const [DateEntrega, setDateEntrega] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [EmpresaId, setEmpresaId] = useState("");
@@ -41,8 +44,8 @@ export const FormProposta = (props: {
   const [Loja, setLoja] = useState("");
   const [prazo, setPrazo] = useState("");
   const [tipoprazo, setTipoPrazo] = useState("");
-  const [totalGeral, setTotalGeral] = useState<any>("");
-  const [Desconto, setDesconto] = useState<any>("");
+  const [totalGeral, setTotalGeral] = useState<any>("R$ 0,00");
+  const [Desconto, setDesconto] = useState<any>("R$ 0,00");
   const [DescontoAdd, setDescontoAdd] = useState('');
   const [saveNegocio, setSaveNegocio] = useState("");
   const [hirtori, setHistory] = useState([]);
@@ -51,7 +54,6 @@ export const FormProposta = (props: {
   const [Id, setId] = useState("");
   const [clientePedido, setClientePedido] = useState("");
   const [RegistroForgpg, setRegistroForgpg] = useState("");
-  console.log("🚀 ~ file: formProposta.tsx:71 ~ FormProposta ~ RegistroForgpg:", RegistroForgpg)
   const [RegistroFrete, setRegistroFrete] = useState("");
   const [ENVIO, setEMVIO] = useState("");
   const [incidentRecord, setIncidentRecord] = useState([]);
@@ -84,11 +86,10 @@ export const FormProposta = (props: {
     })
   }
 
-
   useEffect(() => {
     if (props.data) {
       const resp = props.data
-
+      setData(props.data);
       const [PROPOSTA] = resp.attributes?.pedidos.data
       setId(PROPOSTA?.id);
       const verifiqueFrete = ENVIO === 'UPDATE' ? PROPOSTA?.attributes?.frete : resp.attributes.empresa.data.attributes.frete
@@ -108,19 +109,19 @@ export const FormProposta = (props: {
       setHistory(resp.attributes.history);
       setMSG(resp.attributes.incidentRecord)
       setClientePedido(PROPOSTA?.attributes?.cliente_pedido)
-
       setTipoPrazo(resp.attributes.empresa.data.attributes.maxPg)
-
       setDateEntrega(PROPOSTA?.attributes?.dataEntrega)
       setHistory(resp.attributes.history);
       setCnpj(resp.attributes.empresa.data.attributes.CNPJ)
       setIncidentRecord(resp.attributes.incidentRecord)
       const descontoDb = PROPOSTA?.attributes.descontoAdd
+      console.log("🚀 ~ file: index.tsx:118 ~ useEffect ~ descontoDb:", descontoDb)
       setDescontoAdd(!descontoDb ? 0.00 : descontoDb.replace(".", "").replace(",", "."))
+      setProdutos(props.produtos)
     }
-  }, [ENVIO, props.data]);
+  }, [ENVIO, props.data, props.produtos]);
 
-  const disbleProd = !prazo || !DateEntrega || !Loja || !frete ? false : true;
+
 
   function setPrazoRetorno(prazo: string) {
     setPrazo(prazo);
@@ -128,13 +129,50 @@ export const FormProposta = (props: {
   function getPrazo(prazo: string) {
     setTipoPrazo(prazo);
   }
+  async function getItens(produtos: any) {
+    const data = {
+      id: Data.id,
+      attributes: {
+        ...Data.attributes
+      },
+      itens: ListItens.length < 1 ? [produtos] : [...ListItens, produtos],
+      condi: prazo,
+      prazo: tipoprazo,
+      totalGeral: totalGeral,
+    }
+    console.log(prazo)
+    console.log(tipoprazo)
+    console.log(totalGeral)
 
+
+    try {
+      const request = await fetch(`/api/pedido/calcule?Prazo=${prazo}&DescontoDb=${DescontoAdd}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        cache: "no-store",
+      })
+     if (request.ok) {
+       const response = await request.json();
+       setTotalGeral(response.Total)
+       setDesconto(response.Desconto)
+       setItens(response.Lista)
+     }
+    } catch (error: any) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    setDisableProd(!!prazo && !!DateEntrega && !!Loja && !!frete ? true : false)
+  }, [prazo, DateEntrega, Loja, frete]);
   return (
     <>
       <style>
-        {`.data-input::-webkit-calendar-picker-indicator {
-            filter: invert(1); /* Inverte as cores do ícone */
-            /* Outros estilos que desejar aplicar ao ícone */
+        {`.ata-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
           }`}
       </style>
       <Flex h="100vh" w="100%" flexDir={"column"} px={'5'} py={1} bg={'gray.800'} color={'white'} justifyContent={'space-between'} >
@@ -151,7 +189,7 @@ export const FormProposta = (props: {
               >
                 Empresa
               </FormLabel>
-               <Text w="full">{Nome}</Text>
+              <Text w="full">{Nome}</Text>
             </Box>
             <Box me={2}>
               <FormLabel
@@ -305,13 +343,12 @@ export const FormProposta = (props: {
             <Heading size="sm">Itens da proposta comercial</Heading>
           </Box>
           <Box display="flex" gap={5} alignItems="center" mt={3} mx={5}>
-            {/* {!disbleProd && (<Box w={"300px"} />)}
-            {!!disbleProd && (
+            {!DisableProd && (<Box w={"300px"} />)}
+            {!!DisableProd && (
               <Box w={"300px"} alignItems="center" >
-                <ProdutiList Lista={props.produtos} Retorno={getIten} Reload={getLoading}
-                />
+                <ProdutiList Lista={Produtos} Retorno={getItens} />
               </Box>
-            )} */}
+            )}
             <Box alignItems="center">
               <FormLabel
                 fontSize="xs"
@@ -413,14 +450,8 @@ export const FormProposta = (props: {
                 currency: "BRL",
               })}
             </chakra.p>
-            <chakra.p>Desconto: {Desconto.toLocaleString("pt-br", {
-              style: "currency",
-              currency: "BRL",
-            })}</chakra.p>
-            {/* <chakra.p>Valor Total: {(SetValueNumero(freteCif) + totalGeral).toLocaleString("pt-br", {
-              style: "currency",
-              currency: "BRL",
-            })}</chakra.p> */}
+            <chakra.p>Desconto: {Desconto}</chakra.p>
+            <chakra.p>Valor Total: {totalGeral}</chakra.p>
           </Flex>
           <Button
             colorScheme={"whatsapp"}
@@ -430,6 +461,7 @@ export const FormProposta = (props: {
           </Button>
         </Box>
       </Flex>
+
     </>
   )
 }
