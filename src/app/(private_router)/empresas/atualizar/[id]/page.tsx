@@ -20,8 +20,9 @@ export default function EmpresaId({ params }: EmpresaIdProps) {
 
   useEffect(() => {
     (async () => {
-      const response = await fetch(`/api/empresa/atualizar/get?id=${ID}`);
+      const response = await fetch(`/api/empresa/atualizar/get/${ID}`);
       const empresa = await response.json();
+      console.log("🚀 ~ file: page.tsx:25 ~ empresa:", empresa)
       setDataEmp(empresa)
       if (empresa.attributes.user.data?.attributes.username !== session?.user.name && session?.user.pemission !== 'Adm') {
         toast({

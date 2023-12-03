@@ -45,7 +45,7 @@ import { GetCnpj } from "@/function/getCnpj";
 }
 
 async function PutEmpresa(data: any, id: string) {
-  const request = await fetch(`src/app/api/empresa/put/${id}`, {
+  const request = await fetch(`/api/empresa/put/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

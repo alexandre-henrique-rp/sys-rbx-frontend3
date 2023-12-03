@@ -27,11 +27,10 @@ export const ProdutiList = (props: {
     setLoad(true);
     if(itenId){
       try {
-        const url = `/api/produto/${itenId}`;
-        const request = await fetch(url)
-        if (request.ok) {
-          const response = await request.json()
-          console.log("🚀 ~ file: index.tsx:33 ~ addItens ~ response:", response)
+        const SelectProduto =  Produtos.filter((i: any) => i.prodId == itenId)
+        console.log('filtro', SelectProduto)
+        if (SelectProduto.length > 0) {
+          const [response] = SelectProduto
           props.Retorno(response);
           setLoad(false);
         }
@@ -39,7 +38,7 @@ export const ProdutiList = (props: {
         console.log(error)
         toast({
           title: 'Ocorreu um erro',
-          description: `${JSON.stringify(error, null, 2)}`,
+          description: `Não é possível atribuir esse produto`,
           status: 'error',
           duration: 9000,
           isClosable: true,

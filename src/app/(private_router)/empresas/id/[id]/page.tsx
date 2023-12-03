@@ -316,7 +316,7 @@ export default function Infos({ params }: InfosParams) {
             <Box w={'100%'} bg={'#2d3748'} rounded={16} p={5}>
               <Box><Heading size={'md'}>Historico</Heading></Box>
               <Flex w={'100%'} h={'80%'} overflowY={'auto'} gap={3} flexDir={'column'}>
-                {/* {Historico.map((item: any) => {
+                {Historico.map((item: any) => {
 
                   const Data = new Date(item.date)
                   return (
@@ -329,7 +329,7 @@ export default function Infos({ params }: InfosParams) {
 
                     </>
                   )
-                })} */}
+                })}
               </Flex>
             </Box>
 
@@ -401,7 +401,6 @@ export default function Infos({ params }: InfosParams) {
                 </thead>
                 <tbody>
                   {Negocio.map((i: any, index: number) => {
-                    console.log(i.id);
                     const valor = !!i.attributes?.Budget && parseFloat(i.attributes?.Budget.replace('.', '').replace(',', '.'))
 
                     const [Status] = StatusAndamento.filter((s: any) => s.id == i.attributes?.andamento).map((s: any) => s.title)

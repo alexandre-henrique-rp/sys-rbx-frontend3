@@ -6,9 +6,13 @@ import { Box, Button, Flex, FormLabel, Heading, Icon, IconButton, Input, Select,
 import { color } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { BsArrowLeftCircleFill, BsTrash } from "react-icons/bs";
 import { ProdutiList } from "../ListaDeProduto";
+import { TableConteudo } from "../tabelaConteudo";
+import { SetValueNumero } from "@/function/SetValueNumber";
+import { SetValue } from "@/function/setValue";
+
 
 const tempo = () => {
   const currentTime = new Date();
@@ -18,7 +22,26 @@ const tempo = () => {
   return `${year}-${month}-${day}`
 };
 
-export const FormProposta = (props: {
+async function ReloadInfos(prazo: string,DescontoAdd: string, data: any, Frete: any) {
+  try {
+    const request = await fetch(`/api/pedido/calcule?Prazo=${prazo}&DescontoAdd=${DescontoAdd}&Frete=`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      cache: "no-store",
+    })
+    if (request.ok) {
+      const response = await request.json();
+      return response
+    }
+  } catch (error: any) {
+    console.log(error)
+  }
+  
+}
+const FormProposta = (props: {
   id: any;
   envio: string;
   data: any;
@@ -115,21 +138,37 @@ export const FormProposta = (props: {
       setCnpj(resp.attributes.empresa.data.attributes.CNPJ)
       setIncidentRecord(resp.attributes.incidentRecord)
       const descontoDb = PROPOSTA?.attributes.descontoAdd
-      console.log("🚀 ~ file: index.tsx:118 ~ useEffect ~ descontoDb:", descontoDb)
       setDescontoAdd(!descontoDb ? 0.00 : descontoDb.replace(".", "").replace(",", "."))
       setProdutos(props.produtos)
     }
   }, [ENVIO, props.data, props.produtos]);
 
-
-
-  function setPrazoRetorno(prazo: string) {
-    setPrazo(prazo);
+  async function setPrazoRetorno(PrazoRetorno: string) {
+    setPrazo(PrazoRetorno);
+    if (ListItens.length > 0) {
+      const data = {
+        id: Data.id,
+        attributes: {
+          ...Data.attributes
+        },
+        itens: ListItens,
+        condi: prazo,
+        prazo: tipoprazo,
+        totalGeral: totalGeral,
+      }  
+      const response = await ReloadInfos(PrazoRetorno,DescontoAdd, data, freteCif)
+      setTotalGeral(response.Total)
+      setDesconto(response.Desconto)
+      setItens(response.Lista)
+      setPrazo(PrazoRetorno);
+    }
   }
   function getPrazo(prazo: string) {
     setTipoPrazo(prazo);
   }
   async function getItens(produtos: any) {
+    
+    console.log('lista', ListItens)
     const data = {
       id: Data.id,
       attributes: {
@@ -140,41 +179,99 @@ export const FormProposta = (props: {
       prazo: tipoprazo,
       totalGeral: totalGeral,
     }
-    console.log(prazo)
-    console.log(tipoprazo)
-    console.log(totalGeral)
+
+    const response = await ReloadInfos(prazo,DescontoAdd, data, freteCif)
+    setTotalGeral(response.Total)
+    setDesconto(response.Desconto)
+    setItens(response.Lista)
+  }
+
+  async function removeItem(produtos: any) {
+    const data = {
+      id: Data.id,
+      attributes: {
+        ...Data.attributes
+      },
+      itens: produtos,
+      condi: prazo,
+      prazo: tipoprazo,
+      totalGeral: totalGeral,
+    }
+
+    const response = await ReloadInfos(prazo,DescontoAdd, data, freteCif)
+      setTotalGeral(response.Total)
+      setDesconto(response.Desconto)
+      setItens(response.Lista)
+  }
 
 
-    try {
-      const request = await fetch(`/api/pedido/calcule?Prazo=${prazo}&DescontoDb=${DescontoAdd}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        cache: "no-store",
-      })
-     if (request.ok) {
-       const response = await request.json();
-       setTotalGeral(response.Total)
-       setDesconto(response.Desconto)
-       setItens(response.Lista)
-     }
-    } catch (error: any) {
-      console.log(error)
+  async function setAdddescont(e: any) {
+    const Valor = e.target.value
+    const sinal = Valor.split("")
+
+    const data = {
+      id: Data.id,
+      attributes: {
+        ...Data.attributes
+      },
+      itens: ListItens,
+      condi: prazo,
+      prazo: tipoprazo,
+      totalGeral: totalGeral,
+    }  
+
+    if (!Valor) {
+      setDescontoAdd('0,00')
+    } else if (sinal[0] === '-') {
+      console.log('negativo', sinal[0] === '-')
+      const valorLinpo = SetValueNumero(Valor)
+      const retorno = sinal[0] + valorLinpo
+      const response = await ReloadInfos(prazo,retorno, data, freteCif)
+      setTotalGeral(response.Total)
+      setDesconto(response.Desconto)
+      setItens(response.Lista)
+      setDescontoAdd(retorno)
+    } else {
+      const valorLinpo = SetValue(Valor)
+      const response = await ReloadInfos(prazo,valorLinpo, data, freteCif)
+      setTotalGeral(response.Total)
+      setDesconto(response.Desconto)
+      setItens(response.Lista)
+      setDescontoAdd(valorLinpo)
     }
   }
+
+  async function setFreteSave(e: any) {
+    const Valor = e.target.value
+    const valorLinpo = SetValue(Valor)
+
+    const data = {
+      id: Data.id,
+      attributes: {
+        ...Data.attributes
+      },
+      itens: ListItens,
+      condi: prazo,
+      prazo: tipoprazo,
+      totalGeral: totalGeral,
+    }  
+
+    const frete = !valorLinpo ? '0,00' : valorLinpo
+    const response = await ReloadInfos(prazo,DescontoAdd, data, valorLinpo)
+    setTotalGeral(response.Total)
+    setDesconto(response.Desconto)
+    setItens(response.Lista)
+    setFreteCif(frete)
+   
+  }
+
 
   useEffect(() => {
     setDisableProd(!!prazo && !!DateEntrega && !!Loja && !!frete ? true : false)
   }, [prazo, DateEntrega, Loja, frete]);
   return (
     <>
-      <style>
-        {`.ata-input::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-          }`}
-      </style>
+      
       <Flex h="100vh" w="100%" flexDir={"column"} px={'5'} py={1} bg={'gray.800'} color={'white'} justifyContent={'space-between'} >
         <Box w="100%" bg={'gray.800'} mt={3}>
           <Flex gap={3} alignItems={'center'}>
@@ -312,7 +409,7 @@ export const FormProposta = (props: {
                 step={'0.01'}
                 fontSize="xs"
                 rounded="md"
-                // onChange={setFreteSave}
+                onChange={setFreteSave}
                 value={freteCif}
               />
             </Box>
@@ -332,7 +429,7 @@ export const FormProposta = (props: {
                     w={24}
                     fontSize="xs"
                     rounded="md"
-                    // onChange={setAdddescont}
+                    onChange={setAdddescont}
                     value={DescontoAdd}
                   />
                 </Box>
@@ -428,11 +525,11 @@ export const FormProposta = (props: {
                       </Th>
                     </Tr>
                   </Thead>
-                  {/* <TableConteudo
+                  <TableConteudo
                     Itens={ListItens}
                     loading={loadingTable}
-                    returnItem={getItemFinal}
-                  /> */}
+                    returnItem={removeItem}
+                  />
                 </Table>
               </TableContainer>
             </Box>
@@ -461,7 +558,14 @@ export const FormProposta = (props: {
           </Button>
         </Box>
       </Flex>
-
+      <style>
+        {`.data-input::-webkit-calendar-picker-indicator {
+            filter: invert(1); /* Inverte as cores do ícone */
+            /* Outros estilos que desejar aplicar ao ícone */
+          }`}
+      </style>
     </>
   )
 }
+
+export default memo(FormProposta)
