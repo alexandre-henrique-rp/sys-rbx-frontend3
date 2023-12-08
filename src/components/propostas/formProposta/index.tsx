@@ -22,9 +22,9 @@ const tempo = () => {
   return `${year}-${month}-${day}`
 };
 
-async function ReloadInfos(prazo: string,DescontoAdd: string, data: any, Frete: any) {
+async function ReloadInfos(prazo: string, DescontoAdd: string, data: any, Frete?: any) {
   try {
-    const request = await fetch(`/api/pedido/calcule?Prazo=${prazo}&DescontoAdd=${DescontoAdd}&Frete=`, {
+    const request = await fetch(`/api/pedido/calcule?Prazo=${prazo}&DescontoAdd=${DescontoAdd}&Frete=${Frete}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,8 +39,30 @@ async function ReloadInfos(prazo: string,DescontoAdd: string, data: any, Frete: 
   } catch (error: any) {
     console.log(error)
   }
-  
 }
+
+
+async function UpdateInfos(id: any, data: any) {
+  try {
+    const request = await fetch(`/api/pedido/put/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      cache: "no-store",
+    })
+    if (request.ok) {
+      const response = await request.json();
+      return response
+    }
+  } catch (error: any) {
+    console.log(error)
+  }
+
+}
+
+
 const FormProposta = (props: {
   id: any;
   envio: string;
@@ -67,7 +89,7 @@ const FormProposta = (props: {
   const [Loja, setLoja] = useState("");
   const [prazo, setPrazo] = useState("");
   const [tipoprazo, setTipoPrazo] = useState("");
-  const [totalGeral, setTotalGeral] = useState<any>("R$ 0,00");
+  const [TotalGeral, setTotalGeral] = useState<any>("R$ 0,00");
   const [Desconto, setDesconto] = useState<any>("R$ 0,00");
   const [DescontoAdd, setDescontoAdd] = useState('');
   const [saveNegocio, setSaveNegocio] = useState("");
@@ -75,6 +97,7 @@ const FormProposta = (props: {
   const [MSG, setMSG] = useState([]);
   const [obs, setObs] = useState("");
   const [Id, setId] = useState("");
+  const [NegocioId, setNegocioId] = useState("");
   const [clientePedido, setClientePedido] = useState("");
   const [RegistroForgpg, setRegistroForgpg] = useState("");
   const [RegistroFrete, setRegistroFrete] = useState("");
@@ -112,9 +135,9 @@ const FormProposta = (props: {
   useEffect(() => {
     if (props.data) {
       const resp = props.data
+      console.log("🚀 ~ file: index.tsx:115 ~ useEffect ~ resp:", resp)
       setData(props.data);
       const [PROPOSTA] = resp.attributes?.pedidos.data
-      setId(PROPOSTA?.id);
       const verifiqueFrete = ENVIO === 'UPDATE' ? PROPOSTA?.attributes?.frete : resp.attributes.empresa.data.attributes.frete
       setRegistroFrete(resp.attributes.empresa.data.attributes.frete)
       setFrete(verifiqueFrete);
@@ -154,9 +177,9 @@ const FormProposta = (props: {
         itens: ListItens,
         condi: prazo,
         prazo: tipoprazo,
-        totalGeral: totalGeral,
-      }  
-      const response = await ReloadInfos(PrazoRetorno,DescontoAdd, data, freteCif)
+        totalGeral: TotalGeral,
+      }
+      const response = await ReloadInfos(PrazoRetorno, DescontoAdd, data, freteCif)
       setTotalGeral(response.Total)
       setDesconto(response.Desconto)
       setItens(response.Lista)
@@ -167,7 +190,7 @@ const FormProposta = (props: {
     setTipoPrazo(prazo);
   }
   async function getItens(produtos: any) {
-    
+
     console.log('lista', ListItens)
     const data = {
       id: Data.id,
@@ -177,10 +200,10 @@ const FormProposta = (props: {
       itens: ListItens.length < 1 ? [produtos] : [...ListItens, produtos],
       condi: prazo,
       prazo: tipoprazo,
-      totalGeral: totalGeral,
+      totalGeral: TotalGeral,
     }
 
-    const response = await ReloadInfos(prazo,DescontoAdd, data, freteCif)
+    const response = await ReloadInfos(prazo, DescontoAdd, data, freteCif)
     setTotalGeral(response.Total)
     setDesconto(response.Desconto)
     setItens(response.Lista)
@@ -195,13 +218,13 @@ const FormProposta = (props: {
       itens: produtos,
       condi: prazo,
       prazo: tipoprazo,
-      totalGeral: totalGeral,
+      totalGeral: TotalGeral,
     }
 
-    const response = await ReloadInfos(prazo,DescontoAdd, data, freteCif)
-      setTotalGeral(response.Total)
-      setDesconto(response.Desconto)
-      setItens(response.Lista)
+    const response = await ReloadInfos(prazo, DescontoAdd, data, freteCif)
+    setTotalGeral(response.Total)
+    setDesconto(response.Desconto)
+    setItens(response.Lista)
   }
 
 
@@ -217,8 +240,8 @@ const FormProposta = (props: {
       itens: ListItens,
       condi: prazo,
       prazo: tipoprazo,
-      totalGeral: totalGeral,
-    }  
+      totalGeral: TotalGeral,
+    }
 
     if (!Valor) {
       setDescontoAdd('0,00')
@@ -226,14 +249,14 @@ const FormProposta = (props: {
       console.log('negativo', sinal[0] === '-')
       const valorLinpo = SetValueNumero(Valor)
       const retorno = sinal[0] + valorLinpo
-      const response = await ReloadInfos(prazo,retorno, data, freteCif)
+      const response = await ReloadInfos(prazo, retorno, data, freteCif)
       setTotalGeral(response.Total)
       setDesconto(response.Desconto)
       setItens(response.Lista)
       setDescontoAdd(retorno)
     } else {
       const valorLinpo = SetValue(Valor)
-      const response = await ReloadInfos(prazo,valorLinpo, data, freteCif)
+      const response = await ReloadInfos(prazo, valorLinpo, data, freteCif)
       setTotalGeral(response.Total)
       setDesconto(response.Desconto)
       setItens(response.Lista)
@@ -253,17 +276,246 @@ const FormProposta = (props: {
       itens: ListItens,
       condi: prazo,
       prazo: tipoprazo,
-      totalGeral: totalGeral,
-    }  
+      totalGeral: TotalGeral,
+    }
 
     const frete = !valorLinpo ? '0,00' : valorLinpo
-    const response = await ReloadInfos(prazo,DescontoAdd, data, valorLinpo)
+    const response = await ReloadInfos(prazo, DescontoAdd, data, valorLinpo)
     setTotalGeral(response.Total)
     setDesconto(response.Desconto)
     setItens(response.Lista)
     setFreteCif(frete)
-   
   }
+
+
+  async function Reload() {
+    const data = {
+      id: Data.id,
+      attributes: {
+        ...Data.attributes
+      },
+      itens: ListItens,
+      condi: prazo,
+      prazo: tipoprazo,
+      totalGeral: TotalGeral,
+    }
+    const response = await ReloadInfos(prazo, DescontoAdd, data, freteCif)
+    setTotalGeral(response.Total);
+    setDesconto(response.Desconto);
+    setItens(response.Lista);
+    setFreteCif(response.frete);
+  }
+
+  async function SalvarProdutos() {
+    await Reload();
+    const dados = {
+      data: {
+        matriz: Loja,
+        cliente: cnpj,
+        clienteId: RelatEnpresaId,
+        itens: ListItens,
+        empresa: Loja,
+        dataPedido: tempo,
+        dataEntrega: new Date(DateEntrega).toISOString(),
+        vencPedido: VencDate,
+        vencPrint: VencDatePrint,
+        condi: prazo,
+        prazo: tipoprazo,
+        totalGeral: TotalGeral,
+        deconto: Desconto,
+        vendedor: session?.user.name,
+        vendedorId: session?.user.id,
+        frete: frete,
+        valorFrete: freteCif,
+        business: Data.id,
+        obs: obs,
+        cliente_pedido: clientePedido,
+        hirtori: hirtori,
+        incidentRecord: MSG,
+        fornecedorId: Loja,
+        descontoAdd: DescontoAdd,
+      }
+    }
+    try {
+      if (ENVIO === 'POST') {
+        const response = await fetch(`/api/proposta/post`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dados),
+        })
+        if (response.ok) {
+          const data = await response.json()
+          console.log(data)
+
+          const msg = {
+            vendedor: session?.user.name,
+            date: new Date().toISOString(),
+            msg: `Vendedor ${session?.user.name} criou essa proposta `,
+          };
+          const msg2 = {
+            date: new Date().toISOString(),
+            msg: `Proposta criada com o valor total ${TotalGeral} contendo ${ListItens.length} items`,
+            user: "Sistema",
+          };
+
+          const record = [...hirtori, msg];
+          const record2 = [...MSG, msg2];
+
+          const DadosUpdate = {
+            data: {
+              nPedido: data.id,
+              history: record,
+              incidentRecord: record2,
+              Budget: TotalGeral,
+            }
+          }
+
+          const update = await UpdateInfos(data.id, DadosUpdate)
+          if (update) {
+            toast({
+              title: "Proposta Criada",
+              status: "success",
+              duration: 1000,
+              isClosable: true,
+            });
+            router.back()
+          }
+        }
+
+      } else if (ENVIO === 'PUT') {
+        const response = await fetch(`/api/proposta/${Id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dados),
+        })
+        const data = await response.json()
+        console.log(data)
+      }
+    } catch (error) {
+      console.log(error)
+      toast({
+        title: "Erro",
+        description: "Erro ao salvar a proposta",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+  }
+
+  // const SalvarProdutos = async () => {
+
+
+  //     if (ENVIO === 'POST') {
+
+  //       const dadosPost = data;
+  //       const url = "/api/db/proposta/post";
+  //       await axios({
+  //         method: "POST",
+  //         url: url,
+  //         data: dadosPost,
+  //       })
+  //         .then(async (res: any) => {
+  //           const date = new Date();
+  //           const DateAtua = date.toISOString();
+
+
+
+  //           const data = {
+  //             data: {
+  //               history: record,
+  //               incidentRecord: record2,
+  //               Budget: dadosPost.totalGeral
+  //             },
+  //           };
+
+  //           await axios({
+  //             method: "PUT",
+  //             url: "/api/db/business/put/id/" + NNegocio,
+  //             data: data,
+  //           });
+
+  //           toast({
+  //             title: "Proposta Criada",
+  //             description: res.data.message,
+  //             status: "success",
+  //             duration: 1000,
+  //             isClosable: true,
+  //           });
+
+  //           router.push(`/negocios/${NNegocio}`)
+  //         })
+  //         .catch((err) => {
+  //           console.error(err.data);
+  //         });
+
+  //     } else {
+
+  //       const dadosPost = data;
+  //       const url = `/api/db/proposta/put/${dadosPost.id}`;
+  //       await axios({
+  //         method: "PUT",
+  //         url: url,
+  //         data: dadosPost,
+  //       })
+  //         .then(async (res: any) => {
+
+  //           const date = new Date();
+  //           const DateAtua = date.toISOString();
+
+  //           const msg = {
+  //             vendedor: session?.user.name,
+  //             date: new Date().toISOString(),
+  //             msg: `Vendedor ${session?.user.name} atualizou essa proposta `,
+  //           };
+
+  //           const msg2 = {
+  //             date: DateAtua,
+  //             msg: `Proposta atualizada, valor total agora é ${dadosPost.totalGeral}, passando a ter ${dadosPost.itens.length} items`,
+  //             user: "Sistema",
+  //           };
+
+  //           const record = [...dadosPost.hirtori, msg];
+  //           const record2 = [...dadosPost.incidentRecord, msg2];
+
+  //           const data = {
+  //             data: {
+  //               history: record,
+  //               incidentRecord: record2,
+  //               Budget: totalValor
+  //             },
+  //           };
+
+  //           await axios({
+  //             method: "PUT",
+  //             url: "/api/db/business/put/id/" + PEDIDO,
+  //             data: data,
+  //           })
+  //             .then((resp) => console.log(resp.data))
+  //             .catch((err) => console.log(err))
+
+  //           router.push(`/negocios/${PEDIDO}`)
+
+  //           toast({
+  //             title: "Proposta Atualizada",
+  //             description: res.data.message,
+  //             status: "success",
+  //             duration: 1000,
+  //             isClosable: true,
+  //           });
+  //         })
+  //         .catch((err: any) => {
+  //           setLoadingGeral(false)
+  //           console.log(err.response);
+  //         });
+  //     }
+
+  //   }
+  // };
 
 
   useEffect(() => {
@@ -271,7 +523,7 @@ const FormProposta = (props: {
   }, [prazo, DateEntrega, Loja, frete]);
   return (
     <>
-      
+
       <Flex h="100vh" w="100%" flexDir={"column"} px={'5'} py={1} bg={'gray.800'} color={'white'} justifyContent={'space-between'} >
         <Box w="100%" bg={'gray.800'} mt={3}>
           <Flex gap={3} alignItems={'center'}>
@@ -548,7 +800,7 @@ const FormProposta = (props: {
               })}
             </chakra.p>
             <chakra.p>Desconto: {Desconto}</chakra.p>
-            <chakra.p>Valor Total: {totalGeral}</chakra.p>
+            <chakra.p>Valor Total: {TotalGeral}</chakra.p>
           </Flex>
           <Button
             colorScheme={"whatsapp"}

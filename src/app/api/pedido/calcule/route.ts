@@ -7,6 +7,7 @@ export async function POST(request: Request) {
   const { searchParams } = new URL(request.url);
   const Prazo = searchParams.get('Prazo');
   const DescontoAdd: any = searchParams.get('DescontoAdd');
+  const Frete: any = searchParams.get('Frete');
 
   try {
     const ListItens = body.itens;
@@ -129,7 +130,8 @@ export async function POST(request: Request) {
       return NextResponse.json({
         Total: TotalRetono,
         Desconto: DescontoRetorno,
-        Lista: ListaAtualizada
+        Lista: ListaAtualizada,
+        frete: Frete
       }, { status: 200 });
     }
 
