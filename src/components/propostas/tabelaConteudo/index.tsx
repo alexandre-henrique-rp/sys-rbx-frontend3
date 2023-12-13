@@ -15,7 +15,6 @@ import { BsTrash } from "react-icons/bs";
 
 export const TableConteudo = (props: {
   Itens: any;
-  loading: boolean;
   returnItem: any;
 
 }) => {
@@ -24,9 +23,8 @@ export const TableConteudo = (props: {
 
 
   useEffect(() => {
-    setLoadingTable(props.loading);
     setItens(props.Itens);
-  }, [props.Itens, props.loading]);
+  }, [props.Itens]);
 
   const handleAdd = (Obj: any, id: number) => {
     const [ListaObj] = ListItens.filter((i: any) => i.id === id);

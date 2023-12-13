@@ -119,8 +119,7 @@ export async function POST(request: Request) {
       
       const valorTotal = total
       const ValorDesconto: number = Desconto
-      const somaDecont = !!DescontoAdd ? parseFloat(DescontoAdd) + ValorDesconto : ValorDesconto
-      console.log("🚀 ~ file: route.ts:122 ~ POST ~ somaDecont:", somaDecont)
+      const somaDecont = !!DescontoAdd ? parseFloat(DescontoAdd) + ValorDesconto : DescontoAdd
       const Soma = valorTotal - somaDecont
       const SomaArredondado = Math.round(Soma * 100) / 100
 

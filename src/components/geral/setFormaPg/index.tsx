@@ -9,6 +9,7 @@ export const SetFormaPg = (props: { id: any; retorno: any; envio: any; Disable: 
 
 
   useEffect(() => {
+    console.log("🚀 ~ file: index.tsx:14 ~ useEffect ~ props.retorno:", props.retorno)
     if (props.retorno) {
       setMaxpg(props.retorno)
     }
@@ -23,6 +24,7 @@ export const SetFormaPg = (props: { id: any; retorno: any; envio: any; Disable: 
           cache: "no-store",
         });
         const retorno = await response.json();
+        console.log("🚀 ~ file: index.tsx:26 ~ retorno:", retorno)
         setData(retorno)
         } catch (error) {
           console.log(error)

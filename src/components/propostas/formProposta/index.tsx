@@ -3,7 +3,6 @@ import { GetPrazoPg } from "@/components/geral/getPrazo";
 import { SetFormaPg } from "@/components/geral/setFormaPg";
 import { ListFornecedor } from "@/data/fornecedor";
 import { Box, Button, Flex, FormLabel, Heading, Icon, IconButton, Input, Select, Table, TableContainer, Text, Textarea, Th, Thead, Tr, chakra, useToast } from "@chakra-ui/react";
-import { color } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { memo, useEffect, useState } from "react";
@@ -45,7 +44,27 @@ async function ReloadInfos(prazo: string, DescontoAdd: string, data: any, Frete?
 async function UpdateInfos(id: any, data: any) {
   try {
     const request = await fetch(`/api/pedido/put/${id}`, {
-      method: "POST",
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      cache: "no-store",
+    })
+    if (request.ok) {
+      const response = await request.json();
+      return response
+    }
+  } catch (error: any) {
+    console.log(error)
+  }
+
+}
+
+async function UpdateInfosNegocio(id: any, data: any) {
+  try {
+    const request = await fetch(`/api/negocio/put/${id}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
@@ -63,6 +82,21 @@ async function UpdateInfos(id: any, data: any) {
 }
 
 
+async function GetRequestFornecedor(CNPJ: any){
+  const BaseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+  const Token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+  const request = await fetch(`${BaseUrl}/empresas/?filters[CNPJ][$eq]=${CNPJ}&populate=*`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${Token}`
+    },
+    cache: "no-store",
+  })
+  const response = await request.json();
+  return response.data
+}
+
 const FormProposta = (props: {
   id: any;
   envio: string;
@@ -71,10 +105,7 @@ const FormProposta = (props: {
 }) => {
   const router = useRouter();
   const { data: session } = useSession();
-  const [loadingTable, setLoadingTable] = useState<boolean>(false);
-  const [loadingGeral, setLoadingGeral] = useState<boolean>(false);
   const [DisableProd, setDisableProd] = useState<boolean>(false);
-  const [RelatEnpresa, setRelatEmpresa] = useState([]);
   const [RelatEnpresaId, setRelatEmpresaId] = useState("");
   const [Nome, SetNome] = useState('');
   const [Data, setData] = useState<any>([]);
@@ -83,7 +114,6 @@ const FormProposta = (props: {
   const [date, setDate] = useState<string>(tempo());
   const [DateEntrega, setDateEntrega] = useState("");
   const [cnpj, setCnpj] = useState("");
-  const [EmpresaId, setEmpresaId] = useState("");
   const [frete, setFrete] = useState("");
   const [freteCif, setFreteCif] = useState<any>('0.00');
   const [Loja, setLoja] = useState("");
@@ -91,18 +121,15 @@ const FormProposta = (props: {
   const [tipoprazo, setTipoPrazo] = useState("");
   const [TotalGeral, setTotalGeral] = useState<any>("R$ 0,00");
   const [Desconto, setDesconto] = useState<any>("R$ 0,00");
-  const [DescontoAdd, setDescontoAdd] = useState('');
+  const [DescontoAdd, setDescontoAdd] = useState<any>(0);
   const [saveNegocio, setSaveNegocio] = useState("");
   const [hirtori, setHistory] = useState([]);
   const [MSG, setMSG] = useState([]);
   const [obs, setObs] = useState("");
   const [Id, setId] = useState("");
-  const [NegocioId, setNegocioId] = useState("");
   const [clientePedido, setClientePedido] = useState("");
   const [RegistroForgpg, setRegistroForgpg] = useState("");
   const [RegistroFrete, setRegistroFrete] = useState("");
-  const [ENVIO, setEMVIO] = useState("");
-  const [incidentRecord, setIncidentRecord] = useState([]);
   const toast = useToast();
 
   if (!props.data) {
@@ -138,14 +165,13 @@ const FormProposta = (props: {
       console.log("🚀 ~ file: index.tsx:115 ~ useEffect ~ resp:", resp)
       setData(props.data);
       const [PROPOSTA] = resp.attributes?.pedidos.data
-      const verifiqueFrete = ENVIO === 'UPDATE' ? PROPOSTA?.attributes?.frete : resp.attributes.empresa.data.attributes.frete
+      const verifiqueFrete = props.envio === 'PUT' ? PROPOSTA?.attributes?.frete : resp.attributes.empresa.data.attributes.frete
       setRegistroFrete(resp.attributes.empresa.data.attributes.frete)
       setFrete(verifiqueFrete);
       setDate(PROPOSTA?.attributes?.dataPedido);
-      const verifiquePrazo = ENVIO === 'UPDATE' ? PROPOSTA?.attributes?.condi : resp.attributes.empresa.data.attributes.forpg
+      const verifiquePrazo = props.envio === 'PUT' ? PROPOSTA?.attributes?.condi : resp.attributes.empresa.data.attributes.forpg
       setRegistroForgpg(resp.attributes.empresa.data.attributes.forpg)
       setPrazo(verifiquePrazo);
-      setRelatEmpresa(resp.attributes?.empresa.data);
       SetNome(resp.attributes.empresa.data.attributes.nome)
       setRelatEmpresaId(resp.attributes?.empresa.data.id);
       setFreteCif(PROPOSTA?.attributes?.valorFrete);
@@ -159,12 +185,15 @@ const FormProposta = (props: {
       setDateEntrega(PROPOSTA?.attributes?.dataEntrega)
       setHistory(resp.attributes.history);
       setCnpj(resp.attributes.empresa.data.attributes.CNPJ)
-      setIncidentRecord(resp.attributes.incidentRecord)
       const descontoDb = PROPOSTA?.attributes.descontoAdd
-      setDescontoAdd(!descontoDb ? 0.00 : descontoDb.replace(".", "").replace(",", "."))
+      setDescontoAdd(!descontoDb ? 0 : descontoDb)
       setProdutos(props.produtos)
+      setId(props.envio === 'PUT' ? PROPOSTA?.id : '')
+      setItens(props.envio === 'PUT' ? PROPOSTA?.attributes?.itens : [])
+      setTotalGeral(props.envio === 'PUT' ? PROPOSTA?.attributes?.totalGeral : [])
+      // setDesconto(props.envio === 'PUT' ? PROPOSTA?.attributes?.itens : [])
     }
-  }, [ENVIO, props.data, props.produtos]);
+  }, [props.data, props.envio, props.produtos]);
 
   async function setPrazoRetorno(PrazoRetorno: string) {
     setPrazo(PrazoRetorno);
@@ -244,7 +273,7 @@ const FormProposta = (props: {
     }
 
     if (!Valor) {
-      setDescontoAdd('0,00')
+      setDescontoAdd('0')
     } else if (sinal[0] === '-') {
       console.log('negativo', sinal[0] === '-')
       const valorLinpo = SetValueNumero(Valor)
@@ -279,7 +308,7 @@ const FormProposta = (props: {
       totalGeral: TotalGeral,
     }
 
-    const frete = !valorLinpo ? '0,00' : valorLinpo
+    const frete = !valorLinpo ?  0 : valorLinpo
     const response = await ReloadInfos(prazo, DescontoAdd, data, valorLinpo)
     setTotalGeral(response.Total)
     setDesconto(response.Desconto)
@@ -306,39 +335,61 @@ const FormProposta = (props: {
     setFreteCif(response.frete);
   }
 
+  console.log(Desconto)
   async function SalvarProdutos() {
+
+    const Date5 = new Date();
+    Date5.setDate(Date5.getDate() + 5);
+    const VencDate = `${Date5.getUTCFullYear()}-${Date5.getUTCMonth() + 1 < 10
+      ? "0" + (Date5.getUTCMonth() + 1)
+      : Date5.getUTCMonth() + 1
+      }-${Date5.getUTCDate() < 10 ? "0" + Date5.getUTCDate() : Date5.getUTCDate()
+      }`;
+    const VencDatePrint = `${Date5.getUTCDate() < 10 ? "0" + Date5.getUTCDate() : Date5.getUTCDate()
+      }/${Date5.getUTCMonth() + 1 < 10
+        ? "0" + (Date5.getUTCMonth() + 1)
+        : Date5.getUTCMonth() + 1
+      }/${Date5.getUTCFullYear()}`;
+
     await Reload();
+    
+    const [DadosFornecedor] = await GetRequestFornecedor(Loja);
+    const TempoDoPedido = tempo();
+    const NegocioId = Data.id;
+
     const dados = {
       data: {
-        matriz: Loja,
-        cliente: cnpj,
+        CNPJClinet: cnpj,
         clienteId: RelatEnpresaId,
         itens: ListItens,
-        empresa: Loja,
-        dataPedido: tempo,
+        empresa: RelatEnpresaId,
+        empresaId: RelatEnpresaId,
+        dataPedido: TempoDoPedido,
         dataEntrega: new Date(DateEntrega).toISOString(),
         vencPedido: VencDate,
         vencPrint: VencDatePrint,
         condi: prazo,
         prazo: tipoprazo,
         totalGeral: TotalGeral,
-        deconto: Desconto,
+        desconto: Desconto,
         vendedor: session?.user.name,
         vendedorId: session?.user.id,
         frete: frete,
         valorFrete: freteCif,
-        business: Data.id,
+        business: NegocioId,
+        businessId: NegocioId.toString(),
         obs: obs,
         cliente_pedido: clientePedido,
         hirtori: hirtori,
         incidentRecord: MSG,
-        fornecedorId: Loja,
-        descontoAdd: DescontoAdd,
+        fornecedorId: DadosFornecedor.id.toString(),
+        fornecedor: Loja,
+        descontoAdd: DescontoAdd.toString()
       }
     }
     try {
-      if (ENVIO === 'POST') {
-        const response = await fetch(`/api/proposta/post`, {
+      if (props.envio === 'POST') {
+        const response = await fetch(`/api/pedido/post`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -365,17 +416,23 @@ const FormProposta = (props: {
 
           const DadosUpdate = {
             data: {
-              nPedido: data.id,
+              nPedido: data.id.toString(),
+            }
+          }
+
+          const NegocioUpdate = {
+            data: {
               history: record,
               incidentRecord: record2,
               Budget: TotalGeral,
             }
           }
 
+          await UpdateInfosNegocio(NegocioId, NegocioUpdate)
           const update = await UpdateInfos(data.id, DadosUpdate)
           if (update) {
             toast({
-              title: "Proposta Criada",
+              title: "Proposta Criada com Sucesso",
               status: "success",
               duration: 1000,
               isClosable: true,
@@ -384,17 +441,62 @@ const FormProposta = (props: {
           }
         }
 
-      } else if (ENVIO === 'PUT') {
-        const response = await fetch(`/api/proposta/${Id}`, {
+      } else if (props.envio === 'PUT') {
+        const response = await fetch(`/api/pedido/put/${Id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(dados),
         })
-        const data = await response.json()
-        console.log(data)
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log('PUT',data)
+
+          const msg = {
+            vendedor: session?.user.name,
+            date: new Date().toISOString(),
+            msg: `Vendedor ${session?.user.name} atualizou essa proposta `,
+          };
+
+          const msg2 = {
+            date: new Date().toISOString(),
+            msg: `Proposta atualizada, valor total agora é ${TotalGeral}, passando a ter ${ListItens.length} items`,
+            user: "Sistema",
+          };
+
+          const record = [...hirtori, msg];
+          const record2 = [...MSG, msg2];
+
+          const DadosUpdate = {
+            data: {
+              nPedido: data.id.toString(),
+            }
+          }
+
+          const NegocioUpdate = {
+            data: {
+              history: record,
+              incidentRecord: record2,
+              Budget: TotalGeral,
+            }
+          }
+
+          await UpdateInfosNegocio(NegocioId, NegocioUpdate)
+          const update = await UpdateInfos(data.id, DadosUpdate)
+          if (update) {
+            toast({
+              title: "Proposta Atualizada com sucesso",
+              status: "success",
+              duration: 1000,
+              isClosable: true,
+            });
+            router.back()
+          }
+        }
       }
+
     } catch (error) {
       console.log(error)
       toast({
@@ -406,116 +508,6 @@ const FormProposta = (props: {
       })
     }
   }
-
-  // const SalvarProdutos = async () => {
-
-
-  //     if (ENVIO === 'POST') {
-
-  //       const dadosPost = data;
-  //       const url = "/api/db/proposta/post";
-  //       await axios({
-  //         method: "POST",
-  //         url: url,
-  //         data: dadosPost,
-  //       })
-  //         .then(async (res: any) => {
-  //           const date = new Date();
-  //           const DateAtua = date.toISOString();
-
-
-
-  //           const data = {
-  //             data: {
-  //               history: record,
-  //               incidentRecord: record2,
-  //               Budget: dadosPost.totalGeral
-  //             },
-  //           };
-
-  //           await axios({
-  //             method: "PUT",
-  //             url: "/api/db/business/put/id/" + NNegocio,
-  //             data: data,
-  //           });
-
-  //           toast({
-  //             title: "Proposta Criada",
-  //             description: res.data.message,
-  //             status: "success",
-  //             duration: 1000,
-  //             isClosable: true,
-  //           });
-
-  //           router.push(`/negocios/${NNegocio}`)
-  //         })
-  //         .catch((err) => {
-  //           console.error(err.data);
-  //         });
-
-  //     } else {
-
-  //       const dadosPost = data;
-  //       const url = `/api/db/proposta/put/${dadosPost.id}`;
-  //       await axios({
-  //         method: "PUT",
-  //         url: url,
-  //         data: dadosPost,
-  //       })
-  //         .then(async (res: any) => {
-
-  //           const date = new Date();
-  //           const DateAtua = date.toISOString();
-
-  //           const msg = {
-  //             vendedor: session?.user.name,
-  //             date: new Date().toISOString(),
-  //             msg: `Vendedor ${session?.user.name} atualizou essa proposta `,
-  //           };
-
-  //           const msg2 = {
-  //             date: DateAtua,
-  //             msg: `Proposta atualizada, valor total agora é ${dadosPost.totalGeral}, passando a ter ${dadosPost.itens.length} items`,
-  //             user: "Sistema",
-  //           };
-
-  //           const record = [...dadosPost.hirtori, msg];
-  //           const record2 = [...dadosPost.incidentRecord, msg2];
-
-  //           const data = {
-  //             data: {
-  //               history: record,
-  //               incidentRecord: record2,
-  //               Budget: totalValor
-  //             },
-  //           };
-
-  //           await axios({
-  //             method: "PUT",
-  //             url: "/api/db/business/put/id/" + PEDIDO,
-  //             data: data,
-  //           })
-  //             .then((resp) => console.log(resp.data))
-  //             .catch((err) => console.log(err))
-
-  //           router.push(`/negocios/${PEDIDO}`)
-
-  //           toast({
-  //             title: "Proposta Atualizada",
-  //             description: res.data.message,
-  //             status: "success",
-  //             duration: 1000,
-  //             isClosable: true,
-  //           });
-  //         })
-  //         .catch((err: any) => {
-  //           setLoadingGeral(false)
-  //           console.log(err.response);
-  //         });
-  //     }
-
-  //   }
-  // };
 
 
   useEffect(() => {
@@ -779,7 +771,6 @@ const FormProposta = (props: {
                   </Thead>
                   <TableConteudo
                     Itens={ListItens}
-                    loading={loadingTable}
                     returnItem={removeItem}
                   />
                 </Table>
@@ -804,8 +795,7 @@ const FormProposta = (props: {
           </Flex>
           <Button
             colorScheme={"whatsapp"}
-            // onClick={SalvarProdutos} 
-            isDisabled={loadingTable}>
+            onClick={SalvarProdutos} >
             Salvar Proposta
           </Button>
         </Box>
