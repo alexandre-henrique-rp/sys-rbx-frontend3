@@ -414,7 +414,7 @@ export const NegocioHeader = (props: {
                 onClick={() => {
 
                   window.open(
-                    `/api/db/proposta/pdf/${NPedido}`,
+                    `/api/proposta/pdf/${NPedido}`,
                     "_blank"
                   )
                 }}
@@ -431,7 +431,7 @@ export const NegocioHeader = (props: {
                 colorScheme={"teal"}
                 variant={'solid'}
                 onClick={() => window.open(
-                  `/api/db/proposta/pdf/${NPedido}`,
+                  `/api/proposta/pdf/${NPedido}`,
                   "_blank"
                 )}
               >
@@ -445,7 +445,7 @@ export const NegocioHeader = (props: {
                 colorScheme={"teal"}
                 variant={'solid'}
                 onClick={() => window.open(
-                  `/api/db/proposta/pdf/${NPedido}`,
+                  `/api/proposta/pdf/${NPedido}`,
                   "_blank"
                 )}
               >
@@ -464,7 +464,7 @@ export const NegocioHeader = (props: {
                 colorScheme={"red"}
                 variant={'outline'}
                 onClick={() => window.open(
-                  `/api/db/proposta/pdf/${NPedido}`,
+                  `/api/proposta/pdf/${NPedido}`,
                   "_blank"
                 )}
               >

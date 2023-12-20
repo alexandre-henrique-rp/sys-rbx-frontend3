@@ -384,7 +384,8 @@ const FormProposta = (props: {
         incidentRecord: MSG,
         fornecedorId: DadosFornecedor.id.toString(),
         fornecedor: Loja,
-        descontoAdd: DescontoAdd.toString()
+        descontoAdd: DescontoAdd.toString(),
+        user: session?.user.id,
       }
     }
     try {
@@ -614,7 +615,7 @@ const FormProposta = (props: {
               <SetFormaPg id={RelatEnpresaId} retorno={prazo} envio={setPrazoRetorno} Disable={RegistroForgpg && session?.user.pemission !== 'Adm' ? true : false} />
             </Box>
             <Box hidden={prazo === "A Prazo" ? false : true}>
-              <GetPrazoPg envio={getPrazo} id={RelatEnpresaId} retorno={tipoprazo} />
+              <GetPrazoPg envio={tipoprazo} id={RelatEnpresaId} retorno={getPrazo} />
             </Box>
             <Box>
               <FormLabel

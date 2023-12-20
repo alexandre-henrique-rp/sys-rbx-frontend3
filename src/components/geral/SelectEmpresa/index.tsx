@@ -44,11 +44,11 @@ export const SelectEmpresas = (props: {
       const Filtro = IdEmp === 'EM ANDAMENTO'? 3: IdEmp === 'PERDIDO'? 1:5
       let resp;
       if(IdEmp === 'TODOS OS NEGÓCIOS') {
-        resp = await FetchRequest.get(`/businesses?populate=*&filters[vendedor][username][$eq]=${props.Usuario}&sort[0]=id%3Adesc&pagination[limit]=8000`);
+        resp = await FetchRequest.get(`/businesses?populate=*&filters[status][$eq]=true&filters[vendedor][username][$eq]=${props.Usuario}&sort[0]=id%3Adesc&pagination[limit]=8000`);
       } else if (filter.length > 0) {
-        resp = await FetchRequest.get(`/businesses?populate=*&filters[andamento][$eq]=${Filtro}&filters[vendedor][username][$eq]=${props.Usuario}&sort[0]=id%3Adesc&pagination[limit]=8000`);
+        resp = await FetchRequest.get(`/businesses?populate=*&filters[status][$eq]=true&filters[andamento][$eq]=${Filtro}&filters[vendedor][username][$eq]=${props.Usuario}&sort[0]=id%3Adesc&pagination[limit]=8000`);
       } else {
-        resp = await FetchRequest.get(`/businesses?populate=*&filters[empresa][id][$eq]=${IdEmp}&sort[0]=id%3Adesc&pagination[limit]=8000`);
+        resp = await FetchRequest.get(`/businesses?populate=*&filters[status][$eq]=true&filters[empresa][id][$eq]=${IdEmp}&sort[0]=id%3Adesc&pagination[limit]=8000`);
       }
       props.onValue(resp.data);
     } catch (err) {

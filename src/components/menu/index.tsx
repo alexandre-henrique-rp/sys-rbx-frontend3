@@ -1,24 +1,12 @@
 'use client'
 
-import {
-  Center,
-  Flex,
-  Image,
-  Link,
-  List,
-  ListIcon,
-  ListItem,
-  Text,
-  useToast,
-} from '@chakra-ui/react';
+import { Center, Flex, Image, Link, List, ListIcon, ListItem, Text, useToast } from '@chakra-ui/react';
 import { useSession } from 'next-auth/react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import NavMenuItems from '../../data/nav-menu-items';
 import ProfilePopover from '../profile-popover';
-
-
 
 function Navbar() {
   const router = useRouter();
@@ -28,7 +16,7 @@ function Navbar() {
   const [Fornecedor, setFornecedor] = useState<string | null>(null);
   const [FornecedorId, setFornecedorId] = useState<any | null>(null);
   const [FornecedorSecret, setFornecedorSecret] = useState<any | null>(null);
-  const pathname = usePathname();
+  const pathname: any = usePathname();
   const toast = useToast();
 
   const nameRota = pathname.split('/');
@@ -73,7 +61,7 @@ function Navbar() {
                     fornecedor: Fornecedor
                   }),
                 });
-                if(!response.ok) {
+                if (!response.ok) {
                   throw new Error('Ocorreu um erro durante a solicitação POST.');
                 }
                 const retorno = await response.json();
@@ -85,7 +73,7 @@ function Navbar() {
                   duration: 9000,
                   isClosable: true
                 })
-                
+
               } catch (error) {
                 console.log(error);
                 throw error;
